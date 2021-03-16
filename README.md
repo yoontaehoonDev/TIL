@@ -132,7 +132,32 @@
           
 
 # 2021-03-16
+ - Thread 이해
+    - Critical Section 과 Thread Safe
+      - Critical Section 이란, 임계영역이란 뜻으로
+        여러 쓰레드가 동시에 실행할 때, 문제가 될 수 있는 코드를 말한다.
+        그래서 쓰레드가 안전하지 않다고 라고 표현할 수도 있다.
+      
+      - Thread Safe 란, 여러 쓰레드가 동시에 실행해도 문제가 없는 코드를 말한다.
+        보통, 데이터를 조회하는 코드로 사용된다.
+
+ - Semaphore 와 Mutex
+    - Semaphore(n)는 Critical Section에 n개의 쓰레드를 접근 허용하게 하는 방식
+    
+    - Mutex는 Critical Section에 오직, 1개의 쓰레드만 접근 허용하게 하는 방식
+      다른 표현으로, Semephore(1) 이라고 할 수 있다.
 
 
+ - 동기화
+    - 장점 : 여러 쓰레드를 동시에 접근하는 것을 막고, 순차적으로 접근하게 할 수 있다.
+    
+    - 단점 : 동시 실행의 이점을 포기하는 것이기 때문에, 실행 시간이 더 걸린다.
+             CPU의 성능을 극대화해서 사용하는 것이 아니다.
+
+    - 동기화 처리 문법
+      - synchronized 접근제어자 리턴타입 메소드명
+      ```
+      synchronized public void Test()
+      ```
 
 
