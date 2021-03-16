@@ -4,11 +4,16 @@
 package com.yoon.til;
 
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+  class M extends Thread {
+    public M(String name) {
+      super(name);
     }
+    @Override
+    public void run() {
+      System.out.println("하나");
+    }
+  }
+  public static void main(String[] args) {
+  }
 }
