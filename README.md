@@ -154,7 +154,7 @@
       그것을 Critical Section 이라고 부른다.
 
  - wait() / notify()
-    - Thread.sleeip(시간) 과 다르게, wait()는 notify()가 호출되지 않는 이상,
+    - Thread.sleep(시간) 과 다르게, wait()는 notify()가 호출되지 않는 이상,
       절대 일어나지 않는다.
     
     - 실행 순서는 다음과 같다.
