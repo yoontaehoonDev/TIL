@@ -236,3 +236,25 @@
       - ODBC Driver는 특정 DBMS에 종속되지 않는 표준 C/C++ API로 제정하며,
         개발자는 DBMS에 상관없이 일관된 방식으로 프로그래밍이 가능하다.
 
+      - ODBC 드라이버는 API를 모두 구현하는 것은 아니다.
+        Driver마다 구현률이 다를 수 있기 때문에,
+        Oracle ODBC Driver를 사용할 때, 호출할 수 있었던 함수가
+        타 ODBC Driver를 사용할 땐, 호출할 수 없는 경우가 생기기도 한다.
+        그래서 개발 시에 고려해서 프로그래밍 해야 한다.
+
+      - ODBC 드라이버 동작 원리
+        - ODBC Driver이 Vendor API를 호출하고, 호출된 Vendor API는
+          DBMS와 요청과 응답을 주고 받는다.
+
+    - Vendon API(Native API)
+      - DBMS API는 C/C++ 로 제작되며, Native API 또는 Vendor API 라고 불린다.
+        Native API는 *.dll 나 *.lib를 포함하고 있다.
+        
+        dll은 dynamic link library 약자로, 프로그램 실행 시, 필요에 따라
+        외부 DLL파일에서 함수를 사용한다.
+        
+        lib는 static link library의 의미로 필요한 함수를 프로그램 코드에 붙여
+        프로그램 자체에서 사용한다.
+
+        lib는 중복 로딩이 될 수 있고, dll은 한 번만 로딩한다.
+
