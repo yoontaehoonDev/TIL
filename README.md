@@ -267,3 +267,36 @@
 
 
 # 2021-03-18
+ - DB
+    - SQL
+      - DDL(Data Definition Language)
+        - DB자원의 생성/변경/삭제
+        - 데이터베이스, 테이블, 뷰 등등.
+      
+      - DML(Data Manipulation Language)
+        - Data 생성/변경/삭제
+        - insert, update, delete
+      
+      - DQL(Data Query Language)
+        - Data 조회
+        - select
+      
+      - DML과 DQL는 통틀어서 DML이라고 부르기도 한다.
+
+    - Key의 종류
+      - key의 정의 : 데이터를 식별할 때 사용할 수 있는 컬럼들
+
+      - key의 종류
+        - Candidate Key (최소 키 = 후보 키)
+          - 테이블에서 각 컬럼을 유일하게 식별할 수 있는 최소한의 속성들의 집합
+        
+        - Primary Key(메인 키)
+          - 후보키들 중에서 하나로 선택한 키로, 최소성과 유일성을 만족하는 속성
+          - 테이블에서 기본키는 오직 1개만 지정할 수 있다.
+          - 기본키는 NULL값을 절대 가질 수 없고, 중복된 값 또한 가질 수 없다.
+    
+        - Alternate Key(대안 키)
+          - 후보키가 두 개 이상일 경우, 그 중에서 어느 하나를 기본키로 지정하고
+            남은 후보키들을 대안키 라 한다.
+
+
