@@ -145,7 +145,7 @@
  - Semaphore 와 Mutex
     - Semaphore(n)는 Critical Section에 n개의 쓰레드를 접근 허용하게 하는 방식
     
-    - Mutex는 Critical Section에 오직, 1개의 쓰레드만 접근 허용하게 하는 방식
+    - Mutex는 Critical Section에 오직, 1개의 쓰레드만 접근 허용하게 하는 방식.
       다른 표현으로, Semephore(1) 이라고 할 수 있다.
 
 
@@ -181,6 +181,8 @@
 
       - 사용 목적은 객체를 생성하고, 다 사용 후 반납함으로써,
         재사용할 수 있어서, 메모리 절약에 도움된다.
+
+      - Pooling 기법을 사용하는 주 목적은 객체의 재사용에 있다.
 
  - Web Server와 Thread Pool
     - Web Server 안에 Thread Pool 이 존재하고,
@@ -330,9 +332,10 @@
       );
       not null은 삽입 시, null값을 줄 수 없다는 뜻이고,
       varchar(수) 와 char(수)의 차이는
-      insert into test(name) values("test");
-      를 적용했을 때, 문자열 길이가 총 20byte인데, test는 4byte임에도 불구하고,
-      나머지 16byte를 사용한다.
+      insert into test(grade)) values("A+");
+      를 적용했을 때, 문자열 길이가 총 20byte인데, test는 2byte임에도 불구하고,
+      나머지 18byte도 사용한다.
+      따라서, 메모리 절약 측면에서 좋은 방법은 아니다.
       
       반면에, varchar(20)은 문자열 길이만큼 byte를 사용한다.
       
@@ -448,8 +451,8 @@
       - select 컬럼 from 테이블명; <- 조건 없이, 컬럼에 맞게 출력.
       - select 컬럼 from 테이블명 where 조건식; <- 조건에 따라 컬럼 출력.
       - select 컬럼 from 테이블명 where 컬럼 like '%문자';
-        <- %가 앞에 있으면 맨 뒤에 있는 문자의 값과 비교하여 출력
-        <- %가 뒤에 있으면 맨 앞에 있는 문자의 값과 비교하여 출력
+      - %가 앞에 있으면 맨 뒤에 있는 문자의 값과 비교하여 같으면 출력
+      - %가 뒤에 있으면 맨 앞에 있는 문자의 값과 비교하여 같으면 출력
       ```
       select * from test;
       select num, name from test;
@@ -483,6 +486,7 @@
       출력 : PM 06(시) 18(시) 6(시 한 자리)
       select date, date_format(now(), '%i %s') from test;
       출력 : 34(분) 08(초)
+      ```
 
       - 날짜 값을 저장할 때 기본 형식은 yyyy-MM-dd이다.
         - 문자열을 날짜 값으로 저장하려면, str_to_date() 함수 사용해야 한다.
@@ -491,5 +495,46 @@
 
       - FK (Foreign Key)
         - 다른 테이블의 Primary Key를 참조하는 컬럼.
-        - 사용 이유 : 중복 컬럼 방지
+        - 사용 이유 : 데이터 중복을 방지하기 위해 사용.
+      
+      - 테이블 정규화
+        - 데이터 중복을 제거하는 테이블 설계 기법.
+        
+        - 데이터 중복은 곧, 데이터 결함을 발생시키는 원인이다.
+        
+        - 제 1 정규화 ~ 제 6 정규화 까지 있지만,
+          실무에서는 제 1 ~ 3 정규화까지 주로 사용한다.
+
+        - Relational Database Management System.
+          RDBMS 라고 부른며,
+          ER-Diagram 이라고 부르기도 한다.
+          Entity Relationship. 
+        
+        - 사용 방법은 중복되는 컬럼이 존재하면, 별도의 테이블에 분리한다.
+
+        - 별도 테이블을 자식 테이블로 만들고,
+          기존 테이블을 부모 테이블로 만든다.
+
+        - 자식 테이블에는 부모 테이블과 대칭되는 컬럼을 하나 준비한다.
+          그리고 인공 키를 만들어 Primary Key로 적용한다.
+          대칭되는 컬럼을 부모 테이블의 Primary Key로부터 상속을 받는다.
+        
+        ```
+        alter table test2
+          add constraint test2_bno_fk foreign key (bno) references test1(no);
+        ```
+        - test2 테이블을 변경 작업을 실행하고,
+          제약 조건을 건 다음, 제약조건이름(생랴 가능) 외부키를 입력하고 어떤 칼럼을 넣을 지
+          정한다. 그리고 부모로 사용할 테이블을 참조하며, 마지막으로 부모테이블명 괄호 안에
+          primary key를 넣으면 된다.
+
+        - 삭제를 할 때, 부모 테이블에서 바로 삭제가 되지 않는다.
+          그래서 자식 테이블에서 삭제 후, 부모 테이블에서 삭제한다.
+
+        ```
+        delete from test2 where bno=3; <- 자식 테이블에서 외부키 삭제.
+        delete from test1 where no=3; <- 부모 테이블에서 메인키 삭제.
+        ```
+        
+
         
