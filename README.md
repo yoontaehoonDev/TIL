@@ -802,13 +802,35 @@
       - App에서 Driver 구현체를 생성하고,
         DriverManager로 Driver를 등록한다.
     
+    ```
+    java.sql.Driver mariaDB_Driver = new org.mariadb.jdbc.Driver();
+    DriverManager.registerDriver(mariaDB_Driver);
+    Driver 인스턴스 확인
+    java.sql.Driver driver = DriverManager.getDriver("jdbc:mariadb:");
+    System.out.println(driver);
+    ```
+
     2. Driver 구현체 생성 후, 자동 등록
       - App에서 Driver 구현체를 생성하고,
         바로 DriverManager로 등록한다.
     
+    ```
+    new org.mariadb.jdbc.Driver();
+    Driver 인스턴스 확인
+    java.sql.Driver mariaDriver = DriverManager.getDriver("jdbc:mariadb:");
+    System.out.println(mariaDriver);
+    ```
+
     3. Driver 클래스 로딩 후, 자동 등록
       - APP에서 Driver 구현체를 Class.forName()으로 로딩하고,
         DriverManager로 등록한다.
+    
+    ```
+    Class.forName("org.mariadb.jdbc.driver");
+    Driver 인스턴스 확인
+    java.sql.Driver driver = DriverManager.getDriver("jdbc:mariadb:");
+    System.out.println(driver);
+    ```
     
     4. JVM Property에 "jdbc.drivers" 라는 이름으로
        Driver 구현체를 지정해두면, DriverManager가 지정된
@@ -816,9 +838,25 @@
 
       - DriverManager가 JVM Property 클래스를 로딩한다.
 
+    ```
+    System.setProperty("jdbc.drivers", "org.mariadb.jdbc.Driver");
+    System.out.println(System.getProperty("jdbc.drivers"));
+    ```
+
     5. DriverManager의 getDriver()나 getConnection()을 호출할 때,
        *.jar(Java Archive) 파일에서 META-INF/services/java.sql.Driver
        파일을 찾는다. 만약 있다면, 그 파일에 적어 놓은 클래스를 자동 로딩한다.
 
       - DriverManager가 *.jar JDBC 드라이버 파일을 찾아서 읽고,
         적어 놓은 클래스를 로딩한다.
+    
+    ```
+    java.sql.Driver driver = DriverManager.getDriver("jdbc:mariadb:");
+    Driver 인스턴스확인
+    System.out.println(driver);
+    ```
+
+    - static 블록을 실행하고, 안에서 new를 실행하기 때문에 바로 생성이 된다.
+      클래스 로딩 -> static 블록 실행 -> 인스턴스 생성
+    
+    
