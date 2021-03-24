@@ -859,4 +859,87 @@
     - static 블록을 실행하고, 안에서 new를 실행하기 때문에 바로 생성이 된다.
       클래스 로딩 -> static 블록 실행 -> 인스턴스 생성
     
+
+# 2021-03-24
+ - JDBC Programming
+    - DBMS에 연결
+      - JVM에서 jdbc driver 파일(.jar)을 탐색하며,
+        java.sql.Driver를 구현한 클래스를 자동으로 로딩한다.
+        따라서, Class.forName("org.mariadb.jdbc.Driver") 를
+        명시할 필요가 없다.
+
+      - 연결 방법
+        - DriverManager에게 DBMS와의 연결을 요청한다.
+          jdbc url : DBMS 서버 정보
+          Ex) jdbc:DBMS명://서버주소:포트/데이터베이스명.
+          
+          username : DBMS 사용자 아이디
+          Ex) 데이터베이스명?user=사용자명.
+
+          password : DBMS 사용자 암호
+          Ex) 데이터베이스명?user=사용자명&password=암호.
+
+          ```
+          java.sql.Connection connect = DriverManager.getConnection(
+            "jdbc:mariadb://localhost:3306/userdb?user=vella&password=1234"
+          )
+          ```
+        - 실행 순서
+          - DriverManager는 등록된 java.sql.Driver 구현체 중에서
+            jdbc url에 지정된 Driver 객체를 찾는다.
+          
+          - Driver 객체의 connect()를 호출한다.
+
+          - Driver 구현체(Driver 객체)는 DBMS와 연결 후,
+            소켓 정보를 갖고 있는 java.sql.Connection 구현체를 리턴한다.
+          
+          - 자원해제를 위해 close()를 호출해야 하지만,
+            try with resources를 활용함으로써 해야 할 필요가 없어진다.
     
+    - Statement 구현
+      - Statement 객체란, SQL문을 DBMS의 형식에 따라
+        인코딩하여 서버에 전달하는 역할을 한다.
+      - Statement 객체를 사용하기 위해서는
+        아래와 같이 코드를 구현해야 한다.
+        ```
+        try 
+        (java.sql.Connection connect = DriverManager.getConnection(
+            "jdbc:mariadb://localhost:3306/userdb?user=vella&password=1234"
+          );
+        java.sql.Statement stmt = connect.createStatement()) 
+        {
+           INSERT, UPDATE, DELETE문 수행 가능
+           stmt.executeUpdate("insert into test(name) values("하나")); 
+        }
+        ```
+
+        - 데이터 조회로 사용하는 Select문은 ResultSet 객체로 구현한다.
+        ```
+        java.sql.ResultSet rs = stmt.executeQuery(
+          "select * from test order by num desc"
+        );
+        ```
+
+        여기서 값을 가져 오면 true를 리턴하고,
+        아니면 false를 리턴한다.
+        
+        전체 출력을 위해서는 while(rs.next()) 를 사용한다.
+        ```
+        System.out.printf("번호 : %d 이름 : %s 등급 : %s 가입일 : %s\n",
+          rs.getInt("num"),
+          rs.getString("name"),
+          rs.getString("grade"),
+          rs.getDate("registeredDate")
+        );
+        ```
+        getXxx(컬럼명)은 컬럼의 값을 출력한다는 의미다.
+        반대로 컬럼값 설정은 setXxx(컬럼명) 이다.
+        
+        - 참고로, 인덱스 시작은 1 이다 0이 아니다.
+          배열과 다르게 1부터 시작하므로, 주의해야 한다.
+        
+        
+        
+        
+        
+          
