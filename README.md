@@ -910,8 +910,11 @@
         {
            INSERT, UPDATE, DELETE문 수행 가능
            stmt.executeUpdate("insert into test(name) values("하나")); 
+           stmt.executeUpdate("update test set name = "하나" where num = 1);
+           stmt.executeUpdate("delete from test where name = 1 or name = 2);
         }
         ```
+        - 참조된 데이터가 있다면, 자식 테이블의 데이터를 먼저 삭제하면 된다.
 
         - 데이터 조회로 사용하는 Select문은 ResultSet 객체로 구현한다.
         ```
@@ -938,8 +941,77 @@
         - 참고로, 인덱스 시작은 1 이다 0이 아니다.
           배열과 다르게 1부터 시작하므로, 주의해야 한다.
         
+        - 입력스트림을 이용하여, 사용할 수도 있다.
+        ```
+        Scanner scanner = new Scanner(System.in);
         
+        System.out.print("번호 : ");
+        int num = scanner.nextInt();
         
+        System.out.print("이름 : ");
+        String name = scanner.nextLine();
+
+        System.out.print("등급 : ");
+        String grade = scanner.nextLine();
+
+        try(Connect connect = DriverManager.getConnection(
+          "jdbc:mariadb://localhost:3306/userdb?user=vella&password=1234
+        );
+        Statement stmt = connect.createStatement()
+        );
+        {
+          String sql = String.format(
+            "insert into test(number, name, grade) values('%d', '%s', '%s')",
+            num, name, grade
+          );
+        }
+        ```
+
+    - SQL Injection
+      - 사용자가 입력한 값에 SQL실행에 영향을 끼치는
+        SQL 코드를 삽입할 경우, 데이터를 의도적으로 변경 가능하다.
+      
+      - 입력값에 or 1=1를 추가할 경우, 참이 된다.
+        따라서, 비밀번호를 모르더라도 로그인이 가능하다.
+
+      - SQL Injection 방지를 위해, Statement가 아닌,
+        PreparedStatement를 사용한다.
+        
+      - PreparedStatement는 기존 Statement와 다르게,
+        데이터를 변경하는 위치에 ? 를 넣는다.
+        ```
+        update test set num = ?, name = ?, grade = ? where num = 1;
+        stmt.setInt(1, num);
+        stmt.setString(2, name);
+        stmt.setString(3, grade);
+        ```
+        여기서 setXxx() 메소드를 사용하여 값을 설정한다.
+        그리고 번호는 왼쪽 ?부터 시작한다.
+
+        ? 는 in-parameter 라고 부른다.
+
+      - Statement 와 PreparedStatement의 차이
+        - Statement는 값을 가지고 문자열로 직접 SQL문을 만들기 때문에
+          PreparedStatement에 비해, 읽기 힘들다.
+        
+        - PreparedStatement는 SQL Injection을 불가능하게 만들지만,
+          Statement는 아니다.
+        
+        - PreparedStatement는 미리 SQL문을 작성한 다음,
+          DBMS 프로토콜에 맞게 파싱을 한 후, executeUpdate()를 호출한다.
+          따라서, executeUpdate()를 호출할 때마다 SQL 문법을 분석하지
+          않으므로, 반복해서 실행하는 경우, Statement 보다 실행 속도가 더 빠르다.
+
+    - PreparedStatement
+      - setXxx(파라미터 인덱스, 컬럼명)을 사용한다.
+      - 파라미터 인덱스는 미리 작성된 SQL문에서 좌측부터 1로 시작한다.
+
+    - 자식 테이블과 부모 테이블
+      - 부모 테이블에서 값을 추가 후, 자식 테이블에도 부모 테이블 PK로
+        데이터를 추가하려면, PK를 리턴 받아야 한다.
+
+      - Statement.RETURN_GENERATED_KEYS 를 사용하면 된다.
+
         
         
           
