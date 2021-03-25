@@ -1012,6 +1012,71 @@
 
       - Statement.RETURN_GENERATED_KEYS 를 사용하면 된다.
 
-        
-        
+
+# 2021-03-25
+ - DTO
+    - Data Transfer Object의 약자이며,
+      사용자가 데이터를 입력하면, 객체에 데이터를 담은 후,
+      객체를 DAO(Data Access Object)로 전달한다.
+      그리고 전달 받은 DAO는 객체를 꺼내서, JDBC Driver에 넣고
+      JDBC Driver는 DBMS와 SQL문으로 연결을 해서 결과를 주고 받는다.
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
           
