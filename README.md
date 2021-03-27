@@ -1120,7 +1120,67 @@
       left join test t1 on t1.num=t2.num
       where t2.num = v;
       ```
+
+
+# 2021-03-27
+ - SQL문 복습
+    - root 사용
+      ```
+      mysql -u root -p
       
+      유저 목록 조회
+      select user, host from mysql.user;
+
+      유저 생성
+      create user 'user'@'localhost' identified by '1234';
+      create user 'user'@'%' identified by '1234';
+      % 의 의미는 모든 네트워크에서 접속을 허용한다는 의미다.
+
+      데이터베이스 생성
+      create database userdb default character set utf8
+      collate utf8_general_ci;
+      
+      데이터베이스 권한 부여
+      grant all on userdb.* to 'user'@'localhost';
+      ```
+
+    - user 사용
+      ```
+      mysql -u user -p
+      
+      권한을 부여 받은 데이터베이스 사용
+      use userdb;
+      
+      show tables;
+
+      create table test(
+        num int not null,
+        name varchar(25) not null,
+        email varchar(30) not null,
+        address varchar(100) default ''
+      );
+
+      create table test2(
+        num int not null,
+        name varchar(25) not null,
+        email varchar(30) not null,
+        address varchar(100) default ''
+      );
+
+      제약조건 추가
+      alter table test
+      add constraint primary key(num);
+      add constraint unique (email);
+
+      번호 자동 증가
+      alter table test
+      modify column num int auto_increment;
+
+      외부키 참조
+      alter table test2
+      add constraint foreign key(num) references test(num);
+
+      ``` 
 
 
 
