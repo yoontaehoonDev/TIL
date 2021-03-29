@@ -1062,7 +1062,7 @@
 
       - 비식별관계 (non-identifying relationship)
         - FK ≠ PK
-        - 자식 테이블의 FK가 부모 테이블의 PK가 아닌 FK를
+        - 자식 테이블의 FK가 부모 테이블의 PK가 아닌 일반키를
           참조하면, 비식별관계가 성립된다.
 
  - JDBC 리뷰
@@ -1182,6 +1182,87 @@
 
       ``` 
 
+
+# 2021-03-29
+ - 실습 프로젝트 진행
+    - 작업을 등록하기 전에 현재 등록된 프로젝트 목록을 로딩하고,
+      프로젝트에 적용할 작업을 등록한다.
+
+      ```
+      List<Project> projects = new ArrayList<>();
+
+      while (rs.next()) {
+        Project p = new Project();
+        p.setNo(rs.getInt("no"));
+        p.setTitle(rs.getString("title"));
+        projects.add(p);
+      }
+
+      System.out.println("[프로젝트 목록]");
+      if (projects.size() == 0) {
+        System.out.println("등록된 프로젝트가 없습니다.");
+        return;
+      }
+      for (Project p : projects) {
+        System.out.printf("%d,  %s\n", p.getNo(), p.getTitle());
+      }
+
+      int projectNumber = 0;
+      loop:
+      while(true) {
+        String input = Prompt.inputString("프로젝트 번호(취소 : 엔터) : ");
+        if(input.length() == 0) {
+          System.out.println("작업 등록을 취소합니다.");
+          return;
+        }
+        try {
+          projectNumber = Integer.parseInt(input);
+        }
+        catch (Exception e) {
+          System.out.println("숫자를 입력하세요.");
+          continue;
+        }
+        for(Project p : projects) {
+          if(p.getNo() == projectNumber) {
+            break loop;
+          }
+        }
+        System.out.println("존재하지 않는 프로젝트 번호입니다.");
+      }
+      ```
+      
+      - 예외 처리할 것들을 항상 주의해야 한다.
+        숫자만 입력해야 하는 상황인데 문자를 입력한다면,
+        오류가 나기 마련이다.
+        
+        그렇기 때문에, 문자로 입력하고 파싱한 다음 정수로
+        사용하면 문제가 없다.
+
+      - 순서에 유의하자.
+        실행 순서에 따라 예상밖의 결과값을 얻을 수도 있다.
+        제어와 반복을 적절하게 잘 사용하여, 자연스러운 흐름을 만들자.
+
+      - SQL문에서 조건을 만들 때, 더 고민을 하자.
+        괜히 하나 더 만들 수도 있게 된다.
+
+      - FK 설정과 참조 키 설정 생각할 것.
+
+      - where절에서 and / or 를 생각하자.
+
+      - order by 사용법 추가
+        - 첫 번째 컬럼 다음, 두 번째 컬럼이 올 때
+          첫 번째 컬럼이 정렬된 후, 나머지 컬럼을 정렬한다.
+          예를 들면, 4 2 3 1 -> 1 2 3 4 첫 번째 컬럼 정렬
+          3.9 1.1 1.3 4.1 2.2 4.5 3.1 1.2 3.2 2.1 2.3 3.3
+          두 번째 컬럼 정렬
+          1.1 1.2 1.3 2.1 2.2 2.3 3.1 3.2 3.3 3.9 4.1 4.5
+          두 컬럼 전부 오름차순으로 정렬하였기에,
+          첫 번째 컬럼은 1 -> 2 -> 3 -> 4 가 되면서
+          두 번째 컬럼은 1의 수들을 먼저 정렬하고,
+          그 다음 2의 수 -> 3의 수 -> 4의 수 이렇게 정렬이 된다.
+
+      - 자바클래스에서는 쌍방참조를 하면 안 된다.
+        
 
 
 
