@@ -1264,7 +1264,46 @@
       - 자바클래스에서는 쌍방참조를 하면 안 된다.
         
 
+# 2021-03-30
+ - 실습 프로젝트
+    - 데이터 조회 시, PK를 반드시 조회해야 한다.
+    ```
+    select p.no, p.title, p.content, p.writer, m.no, m.name
+    from project p
+    inner join member m on m.no=p.writer
+    where p.no = ?
+    ```
 
+    - Static 블록을 사용하는 이유
+      - 인스턴스 필드로 사용을 하지 못 할 때.
+      - 변수 초기화로 해결이 되지 않을 때.
+
+    - Static 블록 순서
+      - static 변수가 선언이 되있으면,
+        static 블록에서 변수를 초기화하고,
+        static 필드에는 있던 값이 사라진다.
+        ```
+        public class Ex {
+          static int a = 10;
+          
+          static {
+            a = 10;
+          }
+        }
+
+        static int a;
+        ```
+        
+    - try with resources
+      - 괄호 안에 들어갈 수 있는 건, AutoCloseable 구현체와
+        변수 선언이다.
+        ```
+        O try(String check = "check";)
+        
+        String check = null;
+        X try(check = "check";)
+        ```
+        
 
 
 
