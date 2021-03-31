@@ -1305,8 +1305,62 @@
         ```
         
 
+# 2021-03-31
+ - 실습 프로젝트
+    - 하나의 테이블에 하나의 DAO만 소유하게 해야 한다.
+      DAO끼리 종속 관계를 맺으면, 유지보수가 더 힘들어진다.
+      하나의 DAO가 여러 테이블을 조회하는 건 괜찮다.
 
+    - 인터페이스 도입 전.
+      - DAO클래스의 SQL문 변경할 시, 
+        교체할 DBMS에 맞춰, 새 DAO를 작성하고,
+        작성된 DAO에 따라 Handler의 소스도 변경해야 하기 때문에
+        기존에 DB를 사용하는 고객의 유지보수가 더 힘들어진다.
+    
+    - 인터페이스 도입 후.
+      - DBMS를 교체할 때, 그에 맞는 DAO 객체를 주입하면 된다.
+        주입이란, 현재 사용중인 DAO를 인터페이스화하고,
+        DBMS에 맞는 패키지를 생성하고, 그 패키지 안에
+        구현체 클래스들을 생성하여, DAO 인터페이스를 구현한다.
 
+    - 인터페이스 구현체 이름 종류
+      - 클래스명 Impl
+        Ex) ProjectDaoImpl
+      
+      - DBMS명 클래스명
+        Ex) MariaDBProjectDao
+
+    - Connection 객체 주입
+      - DAO가 Connection 객체를 만들게 하지 말고,
+        외부에서 주입 받게 하면 된다.
+        그러면, 공유와 교체가 쉬워진다.
+        ```
+         Connection con = DriverManager.getConnection(
+        "jdbc:mariadb://localhost:3306/taehoondb?user=taehoon&password=1111"
+        );
+
+        BuyerMemberDao buyerMemberDao = new BuyerMemberDaoImpl(con);
+        BuyerBoardDao buyerBoardDao = new BuyerBoardDaoImpl(con);
+        BuyerBoardCommentDao buyerBoardCommentDao = new BuyerBoardCommentDaoImpl(con);
+        SellerMemberDao sellerMemberDao = new SellerMemberDaoImpl(con);
+        SellerBoardDao sellerBoardDao = new SellerBoardDaoImpl(con);
+        SellerBoardCommentDao sellerBoardCommentDao = new SellerBoardCommentDaoImpl(con);
+        OrderDao orderDao = new OrderDaoImpl(con);
+        MenuDao menuDao = new MenuDaoImpl(con);
+        ```
+        위 처럼, DAO에서 Connection 객체를 생성할 필요가 사라진다.
+
+    - Coonection 객체 공유와 rollback()
+      - Connection을 공유해서 사용할 때는 commit에 성공하지 못해
+        임시 보관소에 남아있는 데이터 변경 결과를 확실히 삭제해야 한다.
+        
+        그렇지 않으면, 같은 Connection으로 작업하는 다른 쪽에 영향을 줄 수 있다.
+
+      - 이 점을 해결하기 위해, rollback을 명시적으로 호출해야 한다.
+
+      - commit/rollback 을 하기 전에는 데이터 변경 결과를 임시DB에 보관한다.
+        commit을 하면, 데이터 변경 결과가 실DBMS에 적용이 되고,
+        rollback을 하면, 임시DB에 남아 있던 데이터 변경 결과가 버려진다.
 
 
 
