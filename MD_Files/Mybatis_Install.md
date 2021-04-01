@@ -1,0 +1,22 @@
+- 설치 방법
+      - search.maven.org 접속
+      - mybatis 검색 후, Group ID - org.mybatis / Artifact ID - mybatis 클릭
+      - Gradle Groovy DSL 코드 복사
+      - build.gradle의 dependencies 안에 붙여넣기
+      - gradle eclipse 실행
+      - 라이브러리에 mybatis 확인
+
+    - 사용 방법
+      - mybatis.org 접속
+      - MyBatis for Java 리스트에서 Github Project 클릭
+      - mybatis-3 repository 클릭
+      - README.md의 Essentials 리스트에서 See the docs 클릭
+      - 좌측 리스트에서 Gettring Started 클릭
+      - Building SqlSessionFactory from XML의 두 번째 코드 문단 복사
+      - Eclipse Project에서 XML파일 생성
+      - 파일명 : mybatis-config.xml
+      - 복사한 코드 붙여넣기
+      - 코드 수정 후, jdbc.properties 일반 파일 생성하기
+      - jdbc.properties에 driver, url, username, password 프로퍼티 넣기
+      - Mapper.xml 파일 생성 후, 사용하기
+

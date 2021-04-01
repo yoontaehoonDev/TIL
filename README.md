@@ -1518,16 +1518,72 @@
           </typeAliases>
           ```
 
-          
+        - 각 문장 사용법
+          - select문장
+            sqlSession.selectList() - 목록 리턴
+            sqlSession.selectOne() - 한 개의 결과 리턴
+          - insert문장
+            sqlSession.insert()
+          - update문장
+            sqlSession.update()
+          - delete문장
+            sqlSession.delete()
 
+        - 메소드 사용법
+          - selectList(SQL문 식별자, 파라미터값)
+          - SQL문 식별자 = 네임스페이스명.SQL문장아이디
+            네임스페이스명: <mapper namespace="네임스페이스명">...</mapper>
+            SQL 문장 아이디: <select id="SQL문장 아이디">...</select>
+            ```
+            <mapper namespace="BoardMapper">
+            <select id="selectBoard" resultType="Board">
+            ```
+          - 파라미터값
+            - primitive type 및 모든 자바 객체가 가능하다.
+            - 여러 개의 값을 전달하고 싶으면, Map에 담아서 넘기면 된다.  
+        
+        - select 태그
+          - id : SQL문을 찾을 때 사용하는 식별자.
+          - resultType : select 결과를 저장할 클래스 이름이나 별명.
+          - 클래스 이름은 반드시 fully-qualified class name(패키지명을 포함한 클래스명)을 사용해야 한다.
 
+        - 자바 규칙에 따라 값 넣는 방법
+          - 컬럼명과 일치하는 Setter를 호출한다.
+          - 컬럼명 -> set컬럼명()
+          - num -> setNum(값)
+          - 만일, 컬럼 이름에 해당하는 Setter를 못 찾으면, 호출하지 않는다.
 
+        - mybatis 내부에서 selectList SQL문을 실행하는 순서
+        ```
+        List<Board> list = new LinkedList<>();
+        while(rs.next()) {
+          Board board = new Board();
+          board.setTitle(rs.getString("title"); <- title이란 컬럼명이 있으면 문제 X
+          board.setContents(rs.getString("contents"); <- contents란 컬럼명이 없으면 문제 O
+          list.add(board);
+        }
+        ```
+        Board 클래스에 컬럼명과 일치하는 Setter가 없으면,
+        객체에 저장되지 못 한다.
 
+        위 문제를 해결하기 위해서는 resultMap을 사용해야 한다.
+        <resultMap type="자바 객체의 클래스명" id="연결 정보를 가리키는 식별자">
+        컬럼명과 자바 객체의 프로퍼티명을 연결한다.
+        column="테이블 컬럼명" property="자바 객체의 프로퍼티명"
+        ```
+        <result column="contents" property="content"/>
+        ```
+        - primary key 컬럼인 경우, id 태그를 사용한다.
+        ```
+        <id column="board_id" property="no"/> 
+        ```
 
-
-
-
-
+        위에서 정의한 연결 정보를 사용하려면, resultMap id와 select resultMap을 같게 하면 된다.
+        ```
+        <resultMap type="Board" id="BoardMap">
+        <select id="selectBoard" resultMap="BoardMap">
+        ```
+        여기서 resultType을 resultMap으로 바꿔야 한다.
 
 
 
