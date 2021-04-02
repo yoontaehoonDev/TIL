@@ -1613,14 +1613,84 @@
       ```
       위 코드처럼, 해당 블록의 내용물이 텍스트로 변환되므로,
       &lt;와 같은 Entity를 명시할 필요가 없다.
-      하지만, 무조건 CDATA를 사용하지는 않고,
-      블록 안의 내용물이 많아진다면, 사용하는 편이다.
+      
+      내용물 안에 XML 파서가 혼동을 일으킬 문자가 많을 때 주로 사용한다.
 
  - selectList() / selectOne() / insert() / update() / delete()
     - selectList(SQL ID) or selectList(SQL ID, Parameter)
       위와 같이, SQL을 실행할 때, 오직 한 개의 파라미터만 넘길 수 있다.
       여러 개의 파라미터를 넘기고 싶다면, 객체에 담아서 넘겨야 한다.
+
+    - 특정 범위의 번호에 해당하는 값 가져 오기.
+      ```
+      HashMap<String,Object> params = new HashMap<>();
+      params.put("startNum", 3);
+      params.put("endNum", 5);
+      List<Member> members = sqlSession.selectList("MemberMapper.selectMember", params);
       
+      -- XML Part --
+      <select id="selectMember" resultMap="MemberMap" parameterType="map">
+      <![CDATA[
+        select 
+          num, 
+          name,
+          email,
+          tel
+        from board
+        where board_id >= #{startNo} and board_id <= #{endNo}
+      ]]>
+      </select>
+      ```
+      - 실행 순서
+        - 해쉬맵의 String타입의 key값에 startNum문자열을 넣고,
+          Object타입의 value값에 지정한 번호를 넣는다.
+          그리고 selectList의 SQL ID는 Mapper의 DML id를 넣고,
+          Parameter는 선언한 HashMap 인스턴스를 넣으면 된다.
+          그리고 XML select문으로 넘어와서 실행을 하고,
+          조건문에 value값을 넣음으로써, 조건을 완성시킨다.
+      
+      - 한 맵에는 한 객체가 들어갈 수 있다.
+        맵 = 레코드.
+        key에는 컬럼명, value에는 컬럼의 값
+        Map을 이용하여, 객체를 가져오려면 다음과 같이 선언하면 된다.
+        Map<k, v> 변수명 = sqlSession.selectOne("Mapper명.id명");
+        ```
+        Map<String,Object> map = sqlSession.selectOne("MemberMapper.selectMember");
+        ```
+        하지만, 위 코드에 문제점이 있다.
+        만일, 여러 객체가 존재한다면 어떤 값을 꺼내와야 할 지 모른다.
+        그래서 0 또는 1개의 객체만 존재할 때 사용하며,
+        특정 객체를 꺼내려면, 파라미터를 추가로 명시해야 한다.
+        ```
+        Map<String,Object> map = sqlSession.selectOne("MemberMapper.selectMember", 3);
+        
+        -- XML Part --
+        <select id="selectMember" resultType="map" parameterType="int">
+          select 
+            num,
+            name, 
+            email,
+            tel,
+            rdt
+          from member
+          where num=#{no}
+        </select>
+        ```
+
+      - 일반 객체를 사용하여 여러 값 넘기기
+      ```
+      <insert id="insert" parameterType="member">
+      insert into member(name, email, tel, rdt)
+      values(#{name}, #{email}, #{tel}, now())
+      </insert>
+      ```
+      insert문을 실행할 때는 insert() 메소드를 호출한다.
+      리턴 값은 executeUpdate()의 실행 결과이다.
+      즉, insert 된 데이터의 개수이다.
+      values의 {} 안의 값은 프로퍼티 즉, Member 클래스의 인스턴스명을 의미한다.
+      따라서, 인스턴스명과 일치하지 않으면 작동하지 않는다.
+
+
 
 
 
