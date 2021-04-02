@@ -1586,9 +1586,41 @@
         여기서 resultType을 resultMap으로 바꿔야 한다.
 
 
+# 2021-04-02
+ - XML Entity
+    - &lt; : <
+    - &gt; : >
+    - &quot; : "
+    - &apos; : '
+    - &amp; : &
+    ```
+    select
+    num, name, grade
+    from board
+    where num &lt; 5;
+    ```
+    
+ - CDATA
+    - CDATA 란, XML 파서(Parser)에게 해당 블록의 내용물이
+      단순 텍스트임을 알려주는 명령어이다.
+      ```
+      <![CDATA[
+        select
+        num, name, grade
+        from board
+        where num > 3 and num < 10
+      ]]>
+      ```
+      위 코드처럼, 해당 블록의 내용물이 텍스트로 변환되므로,
+      &lt;와 같은 Entity를 명시할 필요가 없다.
+      하지만, 무조건 CDATA를 사용하지는 않고,
+      블록 안의 내용물이 많아진다면, 사용하는 편이다.
 
-
-
+ - selectList() / selectOne() / insert() / update() / delete()
+    - selectList(SQL ID) or selectList(SQL ID, Parameter)
+      위와 같이, SQL을 실행할 때, 오직 한 개의 파라미터만 넘길 수 있다.
+      여러 개의 파라미터를 넘기고 싶다면, 객체에 담아서 넘겨야 한다.
+      
 
 
 
