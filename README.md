@@ -1588,11 +1588,14 @@
 
 # 2021-04-02
  - XML Entity
+    ```
     - &lt; : <
     - &gt; : >
     - &quot; : "
     - &apos; : '
     - &amp; : &
+    ```
+
     ```
     select
     num, name, grade
