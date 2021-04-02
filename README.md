@@ -1658,7 +1658,7 @@
         Map<String,Object> map = sqlSession.selectOne("MemberMapper.selectMember");
         ```
         하지만, 위 코드에 문제점이 있다.
-        만일, 여러 객체가 존재한다면 어떤 값을 꺼내와야 할 지 모른다.
+        만일, 결과가 2개 이상 존재한다면 어떤 값을 꺼내와야 할 지 모른다.
         그래서 0 또는 1개의 객체만 존재할 때 사용하며,
         특정 객체를 꺼내려면, 파라미터를 추가로 명시해야 한다.
         ```
@@ -1676,6 +1676,15 @@
           where num=#{no}
         </select>
         ```
+        parameterType을 조건문의 {}안의 값의 타입과 일치시켜야 한다.
+        {} 안의 값은 no 즉, int형 타입이다.
+        따라서, parameterType도 int로 선언해야 한다.
+        추가로, wrapper 클래스를 사용해야 하지만, Mybatis가
+        자동으로 오토박싱을 해주기 때문에 Integer가 아닌 int로
+        명시해도 문제가 없다.
+        
+        selectOne의 두 번째 파라미터가 select문의 조건문에 들어가며,
+        해당하는 번호가 있다면, 번호가 위치한 객체를 리턴한다.
 
       - 일반 객체를 사용하여 여러 값 넘기기
       ```
@@ -1690,7 +1699,57 @@
       values의 {} 안의 값은 프로퍼티 즉, Member 클래스의 인스턴스명을 의미한다.
       따라서, 인스턴스명과 일치하지 않으면 작동하지 않는다.
 
+ - AutoCommit
+    - DML을 실행할 때, autocommit defaul값은 false이다.
+      따라서, 데이터 변경 결과를 반영시키려면 반드시 commit을 해야 한다.
+      만일 commit을 하지 않는다면, 임시테이블에 저장된 값이
+      사라지게 되며, 데이터 변경 결과는 결국 적용이 되지 않는다.
+      
+    - autocommit을 true로 바꾸기 위해서는
+      openSession()으로 처리하면 된다.
+      ```
+      openSession(true)
+      ```
+      true로 선언하면,
+      commit을 할 필요없이, 데이터 변경 결과가 바로 적용된다.
+  
+ - 자동 증가 값 획득
+    - userGeneratedKeys
+      자동 증가한 PK 컬럼 값을 사용할 것인지 지정한다.
+    - keyColumn
+      자동 증가 PK 컬럼의 이름을 지정한다.
+    - keyProperty
+      자동 증가 PK 컬럼의 값을 저장할 자바 객체의 프로퍼티를 지정한다.
+      ```
+      <insert id='insert' parameterType="member"
+            userGeneratedKeys="true" keyColumn="num" keyProperty="number">
+      insert into member(name, email, tel, rdt)
+      values(#{name}, #{email}, #{tel}, #{registeredDate})
+      </insert>
+      ```
+      자동 증가한 PK 컬럼의 값을 사용하기 위해서는
+      우선, userGeneratedKeys의 값을 "true"로 지정하고,
+      keyColumn 즉, 컬럼명을 명시해야 한다.
+      그리고 keyProperty는 객체의 인스턴스 필드명을 명시하면 된다.
+      따라서, 컬럼명과 인스턴스 필드명이 다를 수도 있다.
 
+    - 자동 증가된 PK 컬럼의 값을 자식 테이블의 FK 컬럼의 값에 적용하기
+    ```
+    Member member = new Member();
+    member.setName("하나");
+    member.setEmail("abc@abc.com");
+    member.setTel("010-1234-1234");
+
+    sqlSession.insert("MemberMapper.insert", member);
+
+    HashMap<String,Object> fileInfo = new HashMap<>();
+    fileInfo.put("filePath", "flower.jpg");
+    fileInfo.put("memberNum", member.getNumber);
+    sqlSession.insert("MemberMapper.insert2", fileInfo);
+    ```
+    자식 테이블의 FK 컬럼인 memberNum에
+    부모 테이블의 자동 증가된 PK 컬럼값을 넣는다.
+    
 
 
 
