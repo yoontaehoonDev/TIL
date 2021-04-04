@@ -1779,6 +1779,96 @@
           요청과 응답을 각각 주고 받으면 종료된다.
 
 
+# 2021-04-04
+ - 복습
+    - 추상클래스
+      - 추상클래스는 생성자가 존재하지 않는다.
+        따라서, 인스턴스 생성을 할 수가 없다.
+        추가로, 추상 메소드를 선언할 수 있으며,
+        추상 메소드는 메소드 몸체가 없다.
+        그러므로, 추상 클래스를 상속 받은 자식 클래스에서
+        오버라이딩하여 필수적으로 구현해야 한다.
+        ```
+        abstract class Super {
+          abstract void m1();
+          void m2() {
+            System.out.println("Super.m2()");
+          }
+        }
+        
+        class Sub extends Super {
+          @Override
+          void m1() {
+            System.out.println("m1() Overriding");
+          }
+        }
+        ```
+      
+      - 추상클래스의 일반 메소드는 자식 클래스에서
+        오버라이딩하여 사용하는 건 선택이다.
+        반면에, 추상 메소드는 구현하지 않으면 오류가 발생한다.
+
+    - 인터페이스
+      - 인터페이스는 메소드 몸체가 없으며,
+        메소드만 선언할 수 있다.
+        기본적으로 메소드를 선언하면, 추상메소드가 되면서
+        인터페이스를 구현하는 클래스는 반드시 오버라이딩하여
+        선언해야 한다.
+        
+      ```
+      interface Inter {
+        void m1();
+        void m2();
+      }
+
+      class Sub implements Inter {
+        @Override
+        void m1() {
+          System.out.println("m1() Overriding");
+        }
+        @Override
+        void m2() {
+          System.out.println("m2() Overriding");
+        }
+      }
+      ```
+      
+    - SQL문
+      - root에서 user와 DB 생성 및 세팅
+      ```
+      create user 'user'@'localhost' identified by '1234';
+      
+      create database userdb default character set utf8
+      collate utf8_general_ci;
+
+      grant all on userdb.* to 'user'@'localhost';
+      ```
+      
+      - DML 사용
+      ```
+      create table test(
+        no int not null,
+        name varchar(30) not null,
+        email varchar(30) not null,
+        tel varchar(15) default '010-0000-0000'
+      );
+      
+      alter table test
+      add constraint test_PK primary key(no);
+      modify column no int auto_increment;
+
+      insert into test(name, email, tel)
+      values('first', 'abc@abc.com', '010-1234-1234');
+
+      update test set name='changed', email='done' where no=1;
+
+      select * from test;
+
+      delete from test where no=1;
+
+      alter table test2
+      add constraint test2_FK foreign key(no) references test(no);
+      ```
 
 
 
