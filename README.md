@@ -1871,9 +1871,75 @@
       ```
 
 
+# 2021-04-05
+ - Mybatis
+    - ${} 와 #{} 의 차이
+      - #{} 문법은 SQL에 값을 삽입할 때 사용한다.
+        사용자가 입력한 값(문자열)에 SQL 코드를 포함하더라도,
+        단순히 값으로 취급하기 때문에 실행에는 영향을 끼치지 않는다.
+        즉, SQL 삽입 공격이 불가능하다.
+      
+      - ${} 문법은 SQL에 코드를 삽입할 때 사용한다.
+        사용하기에 편리성이 좋지만, 그만큼 위험성도 있다.
+        SQL 삽입 공격이 가능한 문법이라 주의해서 사용해야 한다.
+      
+    - SQL 태그 사용
+      - 여러 SQL문에 공통으로 포함되는 코드가 있다면,
+        다음과 같이 별도의 <sql> 태그에 작성해두고, 사용하면 편리하다.
+        <include> 태그와 같이 쓰인다.
+      ```
+      sql 선언
+      <sql id = 'sql'>
+        select
+          no, name, email, tel, addr
+        from member
+      </sql>
+
+      include 사용
+
+      <select id = "selectMember" resultMap = "MemberMap" parameterType="int">
+        <include refid = "sql">
+        where no = #{no}
+      </select>
+      ```
+
+    - if 태그 사용
+      - if 태그를 사용하면, 값의 유무에 따라, SQL문을 제어할 수 있다.
+        Dynamic SQL을 사용하면, 여러 개의 SQL문을 만들 필요가 없다.
+      ```
+      where
+      <if test="no==1">
+        name = #{name}
+      </if>
+      <if test="no==2">
+        email = #{email}
+      </if>
+      ```
+      위 코드의 단점은 두 if문 둘 다 만족하는 조건이 없다면,
+      오류가 발생한다는 것이다.
+      그래서 where 태그를 사용하여, 오류를 방지할 수 있다.
+
+      ```
+      <where>
+      <if test="no==1">
+        name = #{name}
+      </if>
+      <if test="no==2">
+        email = #{email}
+      </if>
+      </where>
+      ```
+      if문 둘 다 만족하는 조건이 없으면, 
+
+    - 검색
+      - 컬럼명 like concat('%', #{컬럼명}, '%')
+      ```
+      
 
 
 
+      조건문 결합해서 사용 and
+      
 
 
 
