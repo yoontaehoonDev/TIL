@@ -88,3 +88,23 @@
               useJUnitPlatform()
           }
           이 생략되었는지 확인.
+
+ - private MockMvc mvc
+    - 웹 API를 테스트할 때 사용
+    - 스프링 MVC 테스트의 시작점
+    - 이 클래스를 통해 HTTP GET, POST 등에 대한 API 테스트 가능
+
+ - MVC.PERFORM(GET("/hello"))
+    - MockMvc를 통해 /hello 주소로 HTTP GET 요청
+    - 체이닝이 지원됨으로서, 여러 검증 기능을 이어서 선언 가능
+      체이닝이란? 메소드가 객체를 반환하면 반환 값을 이어서 호출하는 것이다.
+      Ex) 인스턴스명.setName("name").setAge(10).setGrade('A') 이런 식으로 이어서 호출하는 것이다.
+
+ - .andExpect(status().isOk())
+    - mvc.perform의 결과를 검증
+    - HTTP Header의 Status(200, 404, 500 등)의 검증
+
+ - .andExpect(content().string(hello))
+    - mvc.perform의 결과를 검증
+    - 응답 본문의 내용을 검증
+    - Controller에서 "hello"를 리턴하기 때문에 이 값이 맞는지 검증
