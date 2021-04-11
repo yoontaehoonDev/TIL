@@ -2395,3 +2395,193 @@
       - 단, 값은 String만 허용한다.
         따라서, String 외의 타입은 타입캐스팅을 해야 한다.
         Ex) valueOf() 사용
+
+
+# 2021-04-11
+  - JPA(Java Persistence API)
+    - 프로그래밍을 관계형 DB에 맞게 SQL을 대신 생성해준다.
+      따라서, 개발자는 SQL에 종속적인 개발을 하지 않아도 된다.
+    
+    - Spring Data JPA
+      - JPA는 인터페이스이며, 자바 표준 명세서이다.
+        따라서, JPA를 사용하려면 구현체가 필요하며,
+        대표적인 구현체가 Hibernater 다.
+    
+      - Spring Data JPA 모듈을 이용하여 JPA를 다룬다.
+        관계식 : Spring Data JPA -> Hibernate -> JPA
+        Hibernate와 Spring Data JPA의 사용에 있어,
+        큰 차이는 없다.
+      
+      - Wrapping을 사용하는 이유
+        - 구현체 교체의 용이성
+          - 구현체 교체의 용이성은 Hibernate외의
+            다른 구현체로 쉽게 교체가 가능하다.
+            그래서 Spring Data JPA를 사용중이면,
+            내부에서 구현체 매핑을 지원해주기 때문에
+            다른 구현체로 바꾸더라도, 큰 어려움이 없다.
+          
+        - 저장소 교체의 용이성
+          - 저장소 교체의 용이성은 관계형 DB 외의 다른 저장소로
+            쉽게 교체가 가능하다. 예를 들면, 대규모 트래픽을
+            다룰 때, MongoDB와 같은 NoSQL로 교체가 필요할 때,
+            Spring Data mongoDB로 의존성만 교체하면 된다.
+    
+    - spring-boot-starter-data-jpa
+      - 스프링 부트용 Spring Data JPA 추상화 라이브러리.
+      - 스프링 부트 버전에 맞춰, 자동으로 JPA 관련 라이브러리들의
+        버전을 관리한다.
+    
+    - h2
+      - 인모메리 관계형 DB
+        - 디스크가 아닌, 메인 메모리에 모든 데이터를 보유한다.
+      
+      - 인메모리 DB의 장점은 디스크 검색보다 자료 접근
+        즉, 조회가 훨씬 빠르다.
+        데이터 증가로 DB 응답 속도가 떨어지는 문제를 개선하였다.
+        
+        단점은 휘발성이다.
+        그래서 DB 서버 전원이 나가면, 메모리 안에 있던
+        데이터들은 그 즉시 삭제된다.
+        그래서 이러한 단점을 보완하기 위해,
+        임시 데이터를 메모리에 담아서 쓰고,
+        Durability를 보장하기 위해서 DML로 실행된 값들은
+        디스크 로그에 기록한다.
+      
+      - 별도의 설치가 필요 없기 때문에 프로젝트 의존성만으로
+        관리할 수 있다.
+      
+      - 메모리에서 실행되기 때문에 앱을 재시작할 때마다 초기화된다.
+        따라서, 이 점을 이용하여 테스트 용도로 많이 사용한다.
+
+    - @Entity
+      - JPA의 애노테이션이다.
+      - 테이블과 링크될 클래스임을 나타내며,
+        기본값으로 클래스의 카멜케이스 이름을 언더스코어 네이밍 _ 으로
+        테이블 이름을 매칭한다.
+        Ex) SalesManager.java -> sales_manager table
+    
+    - @Id
+      - 해당 테이블의 PK 필드
+    
+    - @GeneratedValue
+      - PK의 생성 규칙
+      - GenerationType.IDENTITY 옵션을 추가해야
+        auto_increment 가 적용된다.
+    
+    - @Column
+      - 테이블 컬럼을 나타내며, 굳이 선언하지 않아도
+        해당 클래스의 나머지 필드는 컬럼으로 적용된다.
+      
+      - 사용 이유는 기본값 외에 추가로 변경이 필요한 옵션이
+        있을 때 사용한다.
+      
+      - 문자열은 varchar(255)가 default값이다.
+        그래서 사이즈를 늘리려면, 그 이상의 수를 명시하거나,
+        TEXT 타입으로 바꾸면 된다.
+  
+  - @Getter 와 @NoArgsConstructor는 Lombok의 애노테이션이다.
+    롬복은 코드를 단순화시켜주지만, 필수 애노테이션은 아니다.
+
+  - @NoArgsConstructor
+    - 디폴트 생성자 자동 추가
+    ```
+    public class A {
+      
+      public A() {}
+    }
+    ```
+    와 같다고 보면 된다.
+
+  - @Getter
+    - 클래스 내 모든 필드의 Getter 메소드를 자동 생성
+  
+  - @Builder
+    - 해당 클래스의 빌더 패턴 클래스 생성
+    - 생성자 상단에 선언 시, 생성자에 포함된 빌드만 빌더에 포함
+    ```
+    @Builder
+    public Member(String name, int age, String addr) {
+      this.name = name;
+      this.age = age;
+      this.addr = addr;
+    }
+    ```
+  
+  - Entity 클래스에는 절대 Setter 메소드를 사용하지 않는다.
+    @Builder를 통해 제공되는 빌더 클래스를 사용하여 값을 넣는다.
+    그 이유는 해당 클래스의 인스턴스 값들이 언제 어디서
+    변해야 하는지 코드상으로 명확하게 구분할 수 없기 때문이다.
+    따라서, 후에 기능 변경시 로직이 복잡해진다.
+    Test.builder()
+    .name(name)
+    .age(age)
+    .addr(addr)
+    .build();
+
+  - Repository 클래스는 인터페이스이며, DAO 라고 보면 된다.
+    JpaRepository를 상속 받으며, 타입 파라미터에는
+    <Entity 클래스명, PK 타입> 을 명시하면 된다.
+    그러면 기본적인 CRUD 메소드가 자동으로 생성된다.
+
+    추가로, Entity 클래스와 Entity Repository는
+    함께 위치해야 한다.
+    나중에 규모가 커져서, 도메인별로 프로젝트를
+    분리해야 할 때는 같이 도메인 패키지에서 관리한다.
+
+  - Given - When - Then
+    - Give = 준비
+    - When = 실행
+    - Then = 검증
+  
+  - JPA를 사용하면 DB 데이터에 작업할 경우,
+    쿼리를 날리기 보다는 Entity 클래스의 수정을 통해
+    작업한다.
+  
+  - @After
+    - JUnit에서 단위 테스트가 끝날 때마다,
+      수행되는 메소드를 지정한다.
+    
+    - 배포 전, 전체 테스트를 수행할 때
+      테스트간 데이터 침범을 막기 위해 사용한다.
+    
+    - 여러 테스트가 동시에 수행되면, 테스트용 DB인
+      H2에 데이터가 그대로 남아 있어, 다음 테스트 실행 시,
+      테스트가 실패할 수 있다.
+      따라서, deleteAll() 메소드는 단위 테스트가 끝날 때마다
+      수행된다.
+  
+  - Repository.save
+    - 테이블에 insert/update 쿼리를 실행
+    - id값이 있으면, update 실행
+    - id값이 없으면, insert 실행
+  
+  - Repository.findAll
+    - 테이블에 있는 모든 데이터를 조회해오는 메소드
+
+  - 등록/수정/조회 API 제작
+    - Request 데이터를 받을 DTO
+    - API 요청을 받을 Controller
+    - 트랜잭션, 도메인 기능 간의 순서를 보장하는 Service
+  
+  - Web Layer
+    - 컨트롤러(@Controller)와 JSP/FreeMarker 등의 뷰 템플릿 영역
+    - 필터(@Filter), 인터셉터, 컨트롤러 어드바이스(@ControllerAdvice)
+      등 외부 요청과 응답에 대한 전반적인 영역을 의미
+  
+  - Service Layer
+    - @Service에 사용되는 서비스 영역
+    - 일반적으로 Controller와 Dao의 중간 영역에서 사용됨.
+    - @transactional이 사용되어야 하는 영역
+  
+  - Repository Layer
+    - DB와 같이 데이터 저장소에 접근하는 영역
+  
+  - Dtos
+    - Dto(Data Transfer Object)는 계층 간의 데이터 교환을 위한 객체
+  
+  - Domain Model
+    - 도메인이라 불리는 개발 대상을 모든 사람이
+      동일한 관점에서 이해할 수 있고, 공유할 수 있도록
+      단순화 시킨 것.
+      Ex) 버스 앱이라고 가정하면, 배차/탑승/요금 등이 도메인이 될 수 있다.
+    
