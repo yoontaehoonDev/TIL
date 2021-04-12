@@ -1120,7 +1120,19 @@
       left join test t1 on t1.num=t2.num
       where t2.num = v;
       ```
+      - 두 개 이상의 자식 테이블을 삭제할 경우
+      ```
+      delete 자식테이블명1, 자식테이블명2 from 부모테이블명
+      inner join 자식테이블명1 on 참조값=참조값
+      inner join 자식테이블명2 on 참조값=참조값
+      where 조건
 
+      delete t1, t2 from test t
+      inner join test1 t1 on t1.no = t.no
+      inner join test2 t2 on t2.no = t.no
+      where t.no = 1;
+      ```
+      
 
 # 2021-03-27
  - SQL문 복습
