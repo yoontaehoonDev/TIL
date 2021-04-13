@@ -2597,3 +2597,71 @@
       단순화 시킨 것.
       Ex) 버스 앱이라고 가정하면, 배차/탑승/요금 등이 도메인이 될 수 있다.
     
+  - Bean을 주입받는 방식 3가지
+    - @Autowired
+    - Setter
+    - 생성자
+
+    - 가장 권장하는 방법은 생성자로 주입 받는 방식
+      생성자로 Bean 객체를 받도록 하면, @Autowired와
+      동일한 효과를 볼 수 있다.
+      그 생성자는 @RequiredArgsConstructor에서 해결한다.
+      final이 선언된 모든 인스턴스 필드를 인자값으로
+      하는 생성자를 롬복의 @RequiredArgsConstructor 가 대신 생성한다.
+
+      롬복 애노테이션을 사용하는 이유는 간단하다.
+      만일, 클래스의 의존성 관계가 변경된다면, 생성자 코드를
+      수정해야 한다. 이런 번거로움을 해결하기 위해 롬복을 사용한다.
+  
+  - Entity 클래스를 Request/Response 클래스로 사용하면 안 된다.
+    Entity 클래스는 DB와 맞닿는 핵심 클래스이기 때문이다.
+    그래서 Entity 클래스 기준으로 테이블이 생성되고,
+    스키마가 변경된다.
+    수많은 서비스 클래스나 비지니스 로직들이 Entity클래스를
+    기준으로 동작한다.
+  
+  - View Layer와 DB Layer의 역할 분리는 철저하게 하는 게 좋다.
+
+  - HelloController와 다르게
+    @WebMvcTest를 사용하지 않는다.
+    그 이유는 @WebMvcTest는 JPA 기능이 작동하지 않기 때문이다.
+    즉, DB에 관련된 일을 처리하지 않기 때문에 사용하지 않는다.
+  
+  - update 기능에서 DB에 쿼리를 보내는 SQL문이 없다.
+    JPA의 영속성 컨텍스트 때문이다.
+    영속성 컨텍스트는 엔티티를 영구 저장하는 환경이다.
+    즉, 논리적 개념이며 JPA의 핵심은 엔티티가
+    영속성 컨텍스트를 포함되냐 안 되냐에 갈린다.
+
+  - Dirty Checking
+    - 상태 변경 검사를 의미한다.
+      JPA는 트랜잭션이 끝나는 시점에
+      변화가 있는 모든 엔티티 객체를 DB에 자동으로 반영한다.
+      그리고 변화의 기준은 최초 조회 상태이다.
+      JPA는 엔티티를 조회할 때, 해당 에닡티의
+      조회 상태 그대로 스냅샷을 만든다.
+      그리고 트랜잭션이 끝나는 시점에 이 스냅샷과 비교하여,
+      다른 점이 있으면 Update Query를 DB에 전달한다.
+      물론, 이 Dirty Checking 대상은 영속성 컨텍스트가
+      관리하는 엔티티에만 적용된다.
+  
+  - BaseTimeEntity 클래스는 모든 Entity의 상위 클래스가 되어,
+    Entity들의 createdDate, modifiedDate를 자동으로 관리하는 역할이다.
+
+  - @MappedSuperclass
+    - JPA Entity 클래스들이 BaseTimeEntity를 상속할 경우,
+      필드들(createdDate, modifiedDate)도 칼럼으로 인식하도록 한다.
+  
+  - @EntityListeners(AuditingEntityListener.class)
+    - BaseTimeEntity 클래스에 Auditing 기능을 포함시킨다.
+    - Auditing은 시간에 대해 자동으로 값을 넣어주는 기능이다.
+      도메인을 영속성 컨텍스트에 저장하거나, 조회를 수행한 후에
+      update를 하는 경우, 시간 데이터를 입력해야 하는데
+      auditing이 그 역할을 대신 해준다.
+  
+  - @CreatedDate
+    - Entity가 생성되어 저장될 때 시간이 자동 저장된다.
+  
+  - @LastModifiedDate
+    - 조회한 Entity의 값을 변경할 때, 시간이 자동 저장된다.
+  
