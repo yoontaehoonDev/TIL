@@ -2665,3 +2665,19 @@
   - @LastModifiedDate
     - 조회한 Entity의 값을 변경할 때, 시간이 자동 저장된다.
   
+
+# 2021-04-13
+  - Reflection
+    - 클래스 로딩
+      - 클래스 로딩은 단 한 번만 한다.
+      - 스태틱 멤버(변수, 메소드), 인스턴스 생성, Class.forName()을 이용할 때 로딩한다.
+
+      - Class.forName()으로 로딩할 경우, fully qualified class name으로 해야 한다.
+      ```
+      Class.forName("com.yoon.pms.Test"); <- 가능
+      Class.forName("Test"); <- 불가능
+      ```
+
+      - 레퍼런스 선언은 클래스 로딩과 다른 부분이다.
+        그래서 레퍼런스와 레퍼런스 배열을 선언할 때는 클래스 로딩이 되지 않는다.
+        
