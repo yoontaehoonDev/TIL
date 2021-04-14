@@ -2680,4 +2680,67 @@
 
       - 레퍼런스 선언은 클래스 로딩과 다른 부분이다.
         그래서 레퍼런스와 레퍼런스 배열을 선언할 때는 클래스 로딩이 되지 않는다.
-        
+      
+      - 스태틱 중첩 클래스를 로딩할 경우,
+        바깥 클래스는 로딩하지 않는다.
+      
+      - 자바 코드로 중첩 클래스를 표현할 때는
+        클래스 이름에 $가 아닌 . 을 붙인다.
+        ```
+        com.yoon.pms.Test$A = X
+        com.yoonpms.Test.A = O
+        ```
+    
+    - 배열 타입 알아내기
+      - 배열타입 = `타입[].class.getComponentType().getName();`
+      ```
+      byte[].class.getComponentType().getName();
+      char[].class.getComponentType().getName();
+      String[].class.getComponentType().getName();
+      ```
+    
+    - 메소드 정보 추출하기
+      - Class<?> clazz = 클래스명.class;
+      ```
+      Method[] list = clazz.getMethods();
+      for(Method m : list) {
+        System.out.println(m.getName());
+      }
+      ```
+    
+    - 접근제어자 관계없이 모두 추출하기
+      - `getDeclaredMethods()` 메소드 사용
+
+    - 생성자 정보 가져오기
+      - Class<?> clazz = 클래스명.class;
+
+      - 단일
+      ```
+      Constructor<?> c = clazz.getConstructor();
+      System.out.printf("생성자명 : %s 파라미터 수 : %d\n",
+                        c.getName, c.getParameterCount());
+      ```
+
+      - 리스트
+      ```
+      Constructor<?>[] list = clazz.getConstructor();
+      for(Constructor<?> c : list) {
+        System.out.printf("생성자명 : %s 파라미터 수 : %d\n",
+                          c.getName, c.getParameterCount());
+      }
+      ```
+    
+    - 파라미터 정보 추출
+    Class<?> clazz = 클래스명.class;
+    ```
+    Method[] methods = clazz.getDeclaredMethods();
+    for(Method m : methods) {
+      Parameter[] parameters = m.getParameters();
+        for(Parameter p : parameters) {
+          System.out.printf("%s : %s\n", p.getName, p.getType().getName());
+        }
+    }
+
+
+# 2021-04-14
+  - 스프링
