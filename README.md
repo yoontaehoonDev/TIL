@@ -2744,3 +2744,116 @@
 
 # 2021-04-14
   - 스프링
+    - 템플릿 엔진
+      - 지정된 템플릿 양식과 데이터가 합쳐져 HTML 문서를 출력하는 S/W
+    
+    - 서버 템플릿 엔진
+      - 서버에서 Java 코드로 문자열을 만든 후,
+        HTML로 변환하여 브라우저에 전달.
+    
+    - 클라이언트 템플릿 엔진
+      - HTML 형태로 코드를 작상하며, DOM(문서 객체 모델)을
+        그리게 해주는 역할.
+    
+    - 프론트엔드 라이브러리 사용 방식
+      - 외부 CDN(Content Delivery Network) 사용
+      - 직접 라이브러리 다운
+    
+    - 레이아웃 방식
+      - 공통 영역을 별도의 파일로 분리하여, 필요한 곳에서
+        가져다 쓰는 방식
+    
+    - 머스테치(Mustache)
+      - `{{> }}` 
+        현재 머스테치 파일을 기준으로 다른 파일 로딩
+      
+      - `{{클래스명.인스턴스명}}`
+        클래스의 인스턴스에 대한 접근을 할 수 있다.
+        Ex) `{{Test.name}}` = Test클래스의 name 인스턴스 필드에 접근
+      
+      - readonly = 오직, 읽기만 허용
+
+    - JS
+      - `window.location.href='/'`
+        글 등록이 성공하면, 메인페이지(/)로 이동
+
+      - `$('#btn-update').on('click')`
+        btn-update란 id를 가진 HTML 엘리먼트에 click 이벤트가
+        발생했을 때, update function을 실행하도록 이벤트 등록
+
+      - `type: 'PUT'`
+        여러 HTTP Method 중 PUT 메소드를 선택한다.
+        PostsAPIController에 있는 API에서 이미
+        `@PutMapping` 으로 선언했기 때문에
+        `PUT`을 사용해야 한다.
+        REST CRUD 규약
+        - C - POST
+        - R - GET
+        - U - PUT
+        - D - DELETE
+
+      - `url: '/api/v1/posts/'+id`
+        어느 게시글을 수정할지 URL Path로 구분하기 위해,
+        Path에 id를 추가한다.
+        즉, 단순히 구분을 위해 id를 추가한다고 보면 된다.
+
+      - `<a href="/post/update/{{id}}">`
+        타이틀(title)에 a tag를 추가한다.
+        타이틀을 클릭하면, 해당 게시글의 수정 화면으로 이동한다.
+
+      - 스프링 부트는 기본적으로
+        `src/main/resources/static` 에 위치한 JS, CSS, 이미지 등
+        정적 파일들은 URL에서 /로 설정된다.
+
+      - `{{#posts}}`
+        posts 라는 List를 순회한다.
+
+      - `{{변수명}}`
+        List에서 뽑아낸 객체의 필드를 사용한다
+        Ex) `{{id}}, {{title}}`
+
+    - `@Transactional`
+      readOnly를 사용하기 위해서는 아래 패키지를 로딩해야 한다.
+      `org.springframework.transaction.annotation.Transactional;`
+
+    - Model
+      서버 템플릿 엔진에서 사용할 수 있는 객체를 저장할 수 있다.
+      findAll()로 가져온 결과를 posts로 index.mustache에 전달한다.  
+      ```
+      @GetMapping("/")
+      public String index(Model model) {
+        model.addAttribute("posts", postsService.findAllDesc());
+        return "index";
+      }
+      ```
+  
+  - 스프링 시큐리티
+    - 인증과 인가 기능을 가진 프레임워크
+      즉, 보안의 표준이다.
+    
+    - 구글 등록 절차
+      - console.cloud.google.com 접속
+      - 프로젝트 생성
+      - API 및 서비스 화면 클릭
+      - 사용자 인증 정보 만들기 클릭
+      - OAuth 클라이언트 ID 클릭
+      - 애플리케이션 유형 - 웹 애플리케이션
+      - 이름 <- 프로젝트명
+      - 승인된 리디렉션 URL - 호스트 설정
+      - 만들기 클릭
+    
+    - `spring-boot-starter-oauth2-client`
+      - 소셜 로그인 등 클라이언트 입장에서
+        소셜 기능 구현 시, 필요한 의존성
+      
+      - `spring-security-oauth2-client` 와
+        `spring-security-oauth2-jose` 를 기본으로 관리한다.
+
+  - JPA
+    - 기본 컬럼 not null 설정 - `@Column(nullable = false)`
+
+    - `@Enumerated(EnumType.STRING)`
+      - JPA로 DB에 저장할 때 Enum 값을 어떤 형태로 저장할지 결정한다.
+        기본적으로 int로 된 수가 저장된다.
+      - 숫자로 저장되면, 확인할 때 의미 파악을 할 수가 없으므로,
+        문자열로 저장될 수 있도록 선언한다.
