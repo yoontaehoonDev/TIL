@@ -2857,3 +2857,88 @@
         기본적으로 int로 된 수가 저장된다.
       - 숫자로 저장되면, 확인할 때 의미 파악을 할 수가 없으므로,
         문자열로 저장될 수 있도록 선언한다.
+
+
+# 2021-04-15
+  - 애노테이션
+    - 애노테이션 프로퍼티
+    ```
+    public @interface Test {
+      String value(); <- 애노테이션의 프로퍼티
+    }
+    ```
+    value는 기본 프로퍼티이다.
+    그래서 이름 생략이 가능하다.
+    
+    - 유지정책
+      - CLASS
+        - .class 파일까지만 유지된다.
+      
+      - SOURCE
+        - 컴파일할 때 제거되므로, .class 파일이 포함되지 않는다.
+
+      - RUNTIME
+        - .class 파일까지 유지되고, runtime에 메모리가 로딩된다.
+    
+    - default값을 지정하지 않으면, 필수 프로퍼티가 된다.
+      즉, 사용하는 클래스에서 값을 지정하지 않으면 오류가 난다.
+      따라서, 값을 지정해야만 사용할 수 있다.
+
+      반면에, default값이 있는 애노테이션은
+      값을 지정하지 않아도 문제가 없다.
+      즉, 필수가 아닌 선택이다.
+      ```
+      @Annotation(value="값") <- 필수 프로퍼티를 가진 애노테이션
+      @Annotation <- default값이 있는 애노테이션
+      ```
+      
+      value 라는 이름을 가진 프로퍼티는 이름 생략이 가능하다.
+      물론, 단수로 올 때 가능하지만 복수로 선언할 때는 반드시 명시해야 한다.
+      
+    - 애노테이션의 모든 프로퍼티에 기본 값이 설정되어 있다면,
+      프로퍼티 설정을 생략해도 된다.
+      
+    - 애노테이션 프로퍼티 배열
+      - 배열 값이 한 개일 경우, 중괄호 생략이 가능하다.
+      ```
+      String[] v() default {"하나"} -> String[] v() default "하나";
+      ```
+
+    - @Target
+      - 애노테이션을 붙일 수 있는 범위를 제어할 수 있다.
+        기존 : `@Target(value = {ElementType.TYPE})`
+        변경 : `@Target(ElementType.TYPE)` <- 프로퍼티명이 value 일 경우 생략 가능
+
+        `ElementType.TYPE` = 클래스에 선언
+        `ElementType.METHOD` = 메소드에 선언
+        `ElementType.FIELD` = 인스턴스 필드에 선언
+        `ElementType.LOCAL_VARIABLE` = 로컬 변수에 선언
+    
+    - 애노테이션 복수 값 지정
+      - `@Target({ElementType.FIELD, ElementType.PARAMETER})`
+        중괄호 안에서 지정해야 한다.
+    
+    - 애노테이션 중복 사용
+      - 같은 애노테이션을 중복으로 사용하려면, `@Repeatable`을 선언하고,
+        반복에 대한 정보를 따로 정의한 애노테이션을 지정해야 한다.
+
+      - `1.` 중복으로 사용할 배열 애노테이션을 만든다.
+        ```
+        public @interface Interceptors {
+          Carrier[] value();
+        }
+        ```
+      
+      - `2.` 배열 애노테이션 클래스에 Repeatable 애노테이션을 사용한다.
+        ```
+        @Repeatable(value=Interceptors.class)
+        public @interface Carrier {
+          String value();
+        }
+        ```
+      
+      - `3.` 사용할 클래스에서 애노테이션을 선언하면 된다.
+        ```
+        @Carrier("one");
+        @Carrier("two");
+        ```
