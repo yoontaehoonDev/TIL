@@ -2984,3 +2984,250 @@
       고려해서 정해야 한다.
 
     - 메인 Thread가 종료되기 전까지는 JVM이 종료되지 않는다.
+
+
+# 2021-04-17
+  - Spring Security
+    - 시큐리티 관련 클래스들은 한 패키지 안에 넣는다.
+      Ex) config.auth 패키지
+    
+    - @EnableWebSecurity
+      - Spring Security 설정들을 활성화시킨다.
+    
+    - csrf().disable().headers().frameOptions().disable()
+      - hs-console 화면을 사용하기 위해, 해당 옵션들을 `disable` 한다.
+
+    - authorizeRequests
+      - URL별 권한 관리를 설정하는 옵션의 시작점
+      - `authorizaRequests`가 선언되어야만 `antMatchers` 옵션 사용이 가능하다.
+    
+    - antMatchers
+      - 권한 관리 대상을 지정하는 옵션.
+      - URL, HTTP 메소드별로 관리가 가능하다.
+      - "/" 등 지정된 URL들은 permitAll() 옵션을 통해,
+        전체 열람 권한을 준다.
+        그리고 "/api/vi/**" 주소를 가진 API는 USER 권한을
+        가진 사람만 가능하게 설정한다.
+    
+    - antRequest
+      - 설정된 값들 이외, 나머지 URL들을 나타낸다.
+      - authenticated()을 추가하여, 나머지 URL들은
+        모두 인증된 사용자들에게만 허용되게 한다.
+      - 인증된 사용자는 로그인한 사용자들을 의미한다.
+    
+    - logout().logoutSuccessUrl("/")
+      - 로그아웃 기능에 대한 여러 설정의 진입점이다.
+      - 로그아웃 성공 시, / 주소로 이동한다.
+        즉, 로그인된 상태에서 로그아웃을 하면 다시 로그인 화면
+        혹은 메인페이지로 이동하게 한다.
+    
+    - oauth2Login
+      - OAuth2 로그인 기능에 대한 여러 설정의 진입점이다.
+
+    - userInfoEndpoint
+      - OAuth2 로그인 성공 후, 사용자 정보를 로딩할 때 설정들을 담당한다.
+    
+    - userService
+      - 소셜 로그인 성공 시, 후속 조치를 진행할 UserService 인터페이스의
+        구현체를 등록하고, 리소스 서버(소셜 서비스들)에서
+        사용자 정보를 가져온 상태에서 추가로 진행하고자 하는 기능을 명시한다.
+    
+    - findByEmail
+      - 소셜 로그인으로 반환되는 값 중, email을 통해 이미 생성된
+        사용자인지 판단을 위한 메소드.
+      ```
+      import java.util.Optional
+      Optional<User> findByEmail(String email);
+      ```
+
+    - registrationId
+      - 현재 로그인 진행 중인 서비스를 구분하는 코드이다.
+      - 하나만 한다면, 선언할 필요가 없지만,
+        2개 이상의 소셜 로그인 연동을 하려면 필요하다.
+
+    - userNameAttributeName
+      - OAuth2 로그인 진행 시, Key가 되는 필드값을 의미한다.
+        Primary Key 와 같은 의미다.
+      - 구글의 경우, 기본적으로 코드를 지원하지만,
+        국내 서비스업체인 네이버나 카카오 등은 지원하지 않는다.
+        구글 기본 코드 = `sub`
+    
+    - OAuthAttributes
+      - OAuth2UserService를 통해, 가져온 OAuth2User의
+        attribute를 담을 클래스이다.
+        네이버와 타 소셜 로그인도 이 클래스를 사용한다.
+    
+    - SessionUser
+      - 세션에 사용자 정보를 저장하기 위한 Dto 클래스이다.
+    
+    - of()
+      - OAuth2User에서 반환하는 사용자 정보는 Map이기 때문에
+        값 하나하나를 변환해야 한다.
+    
+    - toEntity()
+      - User 엔티티를 생성한다.
+      - OAuthAttributes에서 엔티티를 생성하는 시점은
+        처음 가입할 때이다.
+      - 가입할 때의 기본 권한을 GUEST로 주기 위해,
+        role 빌더값에는 role.GUEST를 사용한다.
+      - OAuthAttributes 클래스 생성이 끝나면,
+        같은 패키지에 SessionUser 클래스를 생성한다.
+
+
+# 2021-04-18
+  - 스프링 기초
+    - @GetMapping 복습
+      - @GetMapping("문자열")
+        웹 애플리케이션에서 ("문자열")이 들어오면,
+        @GetMapping이 있는 메소드를 호출한다.
+        ```
+        @GetMapping("test")
+        public String test(Model model) {
+          ...
+        }
+        ```
+        웹 애플리케이션에서 /test 가 들어오면,
+        test 메소드를 호출한다.
+    
+    - 타임리프 문법
+    ```
+    ${data} <- model.addAttribute(key, value)에서 key값이 일치하면,
+    value값이 치환된다.
+    
+    model.addAttribute("data", "test");
+    따라서, key값인 "data"와 ${data}가 같으므로,
+    ${data} = "test"로 치환된다.
+    ```
+
+    - 동작 원리
+      - 웹 브라우저에서 localhost:8080 으로 접속하면,
+        내정 서버가 응답을 하고, Spring Container의 
+        testController를 호출한다.
+        @GetMapping을 통해, URL이 일치하면 test 메소드를 호출한다.
+        그럼 Spring이 Model을 생성해서 test 메소드에 주입한다.
+        model은 속성값을 추가해서 key와 value를 만든다.
+        Ex) `model.addAttribute("data", "test")`
+        그리고 "test"를 리턴한다.
+        그럼 resources/templates에 리턴값과 일치하는 파일명을 찾고,
+        있으면, 그 파일을 실행시켜서 화면에 렌더링한다.
+        
+        컨트롤러에서 리턴 값으로 문자를 반환하면,
+        뷰 리졸버(viewResolver)가 화면을 찾아서 처리한다.
+        즉, 아래와 같은 순서로 진행된다.
+        ```
+        resources/templates/ + (viewResolver) <- 리턴값 + `.html`
+        뷰 리졸버는 리턴 값을 받게 되는데,
+        그 값이 "test"면
+        resources/templates/test.html 로 매핑이 된다.
+        ```
+    
+    - CMD 에서 실행
+      - 프로젝트 폴더에서 gradle build 실행
+      - libs에 있는 파일명을 실행
+      - `java -jar jar파일명`
+        따라서, 내장서버가 실행된다.
+    
+    - 웹 개발에 필요한 기초 3가지
+      - 정적 콘텐츠 / MVC와 템플릿 엔진 / API
+    
+    - 정적 콘텐츠
+      - 웹 브라우저에 접속하고, html파일에 접속을 하면,
+        내장 서버에 요청을 하고 서버는 Spring Container에
+        알리고, Controller를 우선적으로 찾는다.
+        하지만, 매핑된 Controller가 없으면
+        내부의 `resources/static` 에서 찾는다.
+        있으면 반환해서 화면에 렌더링한다.
+    
+    - MVC와 템플릿 엔진
+      - MVC를 사용하기 전에는 Model One 방식을 사용했다.
+        View에 모든 코드를 넣어서 동작시킨다.
+        그래서 Controller와 View를 구분 짓지 않았다.
+      
+      - View는 화면을 그리는데 집중한다.
+      - Controller는 비지니스 로직과 서버 부분을 처리한다.
+      - Model은 처리된 Controller를 전달 받고,
+        전달 받은 걸 View에 전달한다.
+        즉, 브릿지 역할이다.
+      
+      - @RequestParam
+        - 사용 시, 웹에서 구문을 작성해서 출력한다.
+      
+      - @GetMapping 사용 예2
+      ```
+      @GetMapping("test-mvc")
+      public String testMvc(@RequestParan("code") String code, Model model) {
+        model.addAttribute("code", code);
+
+        return "test-template";
+      }
+      ```
+      - 위 코드에서 code란 파라미터를 받는데,
+        code를 URL창에서 컨트롤할 수 있다.
+        `http://localhost:8080/test-mvc?code=Testing`
+        을 실행하면, 화면에 Testing이 출력된다.
+      
+      - 동작 순서
+        - @RequestParam("code") String code 값이 Testing으로 치환된다.
+          따라서, model.addAttribute의 value값이 Testing으로 바뀌고 추가된다.
+          그리고 리턴값인 test-template를 resources/templates에서 찾아서
+          화면에 렌더링한다.
+    
+    - API
+      - @ResponseBody
+        - http의 header와 body 파트에서
+          body에 데이터를 직접 삽입한다.
+          ```
+          @GetMapping("test-string")
+          @ResponseBody
+          public String testString(@RequestParam("name") String name) {
+            return "test " + name;
+          }
+          ```
+          - return 값은 "test name" 이 된다.
+          - 템플릿 엔진과의 차이는 View가 없다.
+            그래서 문자가 그대로 전달된다.
+          
+        - @ResponseBody 순서
+          - 웹 브라우저에서 URL로 내정 서버에 접속을 요청한다.
+            요청 받은 서버는 Spring Container 에서 Controller를 호출하고
+            @ResponseBody가 있으면, viewResolver 대신에
+            HttpMessageConverter가 동작한다.
+            
+            여기서 리턴값이 단순 문자열이면,
+            StringConverter가 동작하고
+            객체라면, JsonConverter가 동작한다.
+            그래서 동작 방식을 통해 서버에 응답하고
+            응답 받은 서버는 웹 브라우저에 전달된 값을 렌더링한다.
+
+            ```
+            return "test" <- 단순 문자열
+            StringConverter 동작 시,
+            test만 출력한다.
+            ```
+
+            ```
+            Test 클래스가 있다고 가정.
+
+            @GetMapping("test-api")
+            @ResponseBody
+            public Test helloApi(@RequestParam("name") String name, @RequestParam("number") int number) {
+              Test test = new Test();
+              test.setName(name);
+              test.setNumber(number);
+
+              return test;
+            }
+            Test test = new Test();
+            test.setNumber(number);
+            test.setName(name);
+            return test <- 객체
+            JsonConverter 동작 시,
+            {
+              "number": 50,
+              "name": "test"
+            }
+            가 출력된다.
+            
+            number와 name 값은 url에서 설정
+            ```
+            
