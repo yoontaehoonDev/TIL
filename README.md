@@ -3281,6 +3281,170 @@
     - 여러 클라이언트가 작업을 하면 임시 DB에 저장된다.
       하지만, rollback이 실행되면, 이전에 작업했던 내용들이 다 취소된다.
       이러한 문제를 해결하기 위해 Proxy Pattern 을 사용한다.
+  
+  - Single Thread 의 Connection 공유
+    - DBMS는 Thread별로 트랜잭션을 관리하기 때문에 두 명이 동시에 작업 중,
+      어느 한 쪽이 rollback이 되더라도, 다른 Thread의 작업에는 영향을 끼치지 않는다.
+  
+  - Multi Thread 의 Connection 공유
+    - Multi Thread는 Connection 을 공유할 때 문제가 발생한다.
+      기본적으로 각 Client가 Thread를 이용하여 작업을 한다.
+      두 명이 동시에 같은 작업을 하더라도 같은 Dao로 넘어가서
+      Connection을 공유한다.
+
+      여기서 문제는 Connection과 이어진 DBMS의 Thread는 하나다.
+      그래서 DBMS의 Thread는 임시DB를 생성해서 작업 결과를 저장하고
+      commit을 하면 전부 적용된다.
+      
+      하지만, 여기서 전부는 단 한 사람이 실행한 작업이 아닌,
+      모두가 실행한 작업을 포함한다.
+      즉, Single Thread와 흐름이 정반대다.
+      그래서 어느 한 쪽이 rollback으로 이어지면,
+      다른 사람의 작업 또한 rollback으로 작업이 취소된다.
+
+  - Multi Thread 의 Connection 공유 문제점 해결 방법
+    - Thread별로 SqlSession 객체를 분리해서 사용한다.
+      그래서 Dao 객체에 SqlSessionFactory를 주입한다.
+      각 Dao는 SqlSessionFactory와 포함관계를 이루며,
+      DB작업을 수행할 때, SqlSession을 만들어 사용한다.
+
+  - 프록시 패턴을 이용한 Connection 공유
+    - SqlSessionProxy 클래스
+      - SqlSession 객체는 이미 존재하며, 기존의 코드를 변경할 수 없다.
+        따라서, 변경을 하기 위해서는 SqlSession 클래스를 모방하여 만들어야 한다.
+        그리고 객체의 일부기능만 변경하려면, 프록시 객체를 생성해야 한다.
+
+      ```
+      public class SqlSessionProxy implements SqlSession {
+        // SqlSession 인터페이스를 상속 받는다.
+        // 그래야 모방하여 만들 수 있기 때문이다.
+
+        SqlSession original; <- 프록시 객체
+        boolean isInTransaction; <- 트랜잭션에 포함되는지 여부 확인 필드
+
+        public SqlSessionProxy(SqlSession sqlSession, boolean transaction) {
+          this.original = sqlSession;
+          this.isInTransaction = transaction;
+        }
+
+        public void realClose() {
+          original.close();
+          // 트랜잭션을 완료한 상태라면, SqlSession 객체의 자원을 해제한다.
+        }
+
+        public void close() {
+          if(isInTransaction) {
+            return;
+          }
+          original.close();
+          // 트랜잭션을 사용하는 경우에는 해제하면 안 된다.
+          // 왜냐하면, 사용 도중 해제를 시켜버리면, 트랜잭션 적용이 되지 않기 때문이다.
+        }
+      }
+      ```
+
+    - SqlSessionFactoryProxy 클래스
+      - SqlSessionFactory 또한 이미 존재하는 객체이다.
+        따라서, SqlSessionProxy 클래스처럼 모방하여 사용한다.
+
+      ```
+      public class SqlSessionFactoryProxy implements SqlSessionFactory {
+        // SqlSessionProxy 클래스와 마찬가지로 일부분만 변경해서 사용하기 위해,
+        // 인터페이스 구현체를 모두 구현한다.
+
+        SqlSessionFactory original;
+        // 프록시 객체를 생성한다.
+
+        ThreadLocal<SqlSessionProxy> threadLocal = new ThreadLocal<>();
+        // Thread 보관소로 사용된다.
+        // threadLocal에는 오직 SqlSession 객체만 넣을 수 있으며,
+        // threadLocal 객체는 heap 영역에 인스턴스 필드로 생성되지 않는다.
+        // 왜냐하면 각 Thread 마다 보유하는 필드이기 때문이다.
+
+        public SqlSessionFactoryProxy(SqlSessionFactory sqlSessionFactory) {
+          this.original = sqlSessionFactory;
+        }
+
+        public void prepareSqlSession() {
+          SqlSessionProxy sqlSessionProxy = new SqlSessionProxy(original.openSession(false), true);
+          // 수동 commit 으로 동작하는 SqlSessionProxy 객체를 생성한다.
+        
+          threadLocal.set(sqlSessionProxy);
+          // Thread 보관소에 SqlSessionProxy 객체를 저장한다.
+        }
+
+        public void closeSession() {
+          SqlSessionProxy sqlSessionProxy = threadLocal.get();
+          // Thread 보관소에서 SqlSessionProxy 객체를 꺼낸다.
+
+          if(sqlSessionProxy != null) {
+            sqlSessionProxy.realClose();
+            // 사용한 객체는 자원 해제를 실행한다.
+            threadLoca.remove();
+            // 보관소에서 꺼낸 객체를 삭제한다.
+          }
+        }
+
+        public SqlSession openSession(boolean autoCommit) {
+          if(autoCommit) {
+            return original.openSession(autoCommit);
+          }
+
+          if(threadLocal.get() != null) {
+            return threadLocal.get();
+          }
+          // 트랜잭션 관리자가 제어하기 위해, 미리 SqlSession 객체를 생성하여
+          // 보관한 상태면 객체를 꺼내서 반환해야 한다.
+
+          return original.openSession(true);
+          // Thread 보관소에 저장된 SqlSession 객체가 없다는 것은
+          // 트랜잭션 관리자의 통제 없이 동작하는 SqlSession이 필요하다는 의미다.
+          // 따라서, 자동 commit 으로 동작하는 SqlSession 객체를 반환하면 된다.
+        }
+      }
+      ```
+
+      - ThreadLocal 의 개념
+        - ThreadLocal는 클래스이며 오직, 한 Thread에 의해서 읽고 쓰여질 수 있는 개념이다.
+          그래서 두 Thread가 같은 코드를 실행하더라도, 서로 실행되는 Thread는 동일하지 않다.
+          그리고 데이터를 사용한 후에는 반드시 데이터를 삭제해야 한다.
+          삭제를 하지 않고 진행할 경우, 재사용되는 Thread가 올바르지 않은 데이터를 
+          참조할 수 있기 때문이다.
     
-    
-    
+
+    - TransactionManager 클래스
+      - 트랜잭션을 관리하기 위해 만든 클래스이다.
+      
+      ```
+      public class TransactionManager {
+        SqlSessionFactoryProxy sqlSessionFactoryProxy;
+        // 트랜잭션을 이용하기 위해서는 SqlSessionFactoryProxy가 필요하다.
+        // 왜냐하면, SqlSessionFactoryProxy 없이는 동작이 불가능한 클래스이기 때문이다.
+
+        public TransactionManager(SqlSessionFactoryProxy sqlSessionFactoryProxy) {
+          this.sqlSessionFactoryProxy = sqlSessionFactoryProxy;
+        }
+
+        public void beginTransaction() {
+          sqlSessionFactoryProxy.prepareSqlSession();
+          // 트랜잭션을 시작하면, 사용할 SqlSession 객체를 Thread 보관소에 저장한다.
+        }
+
+        public void commit() {
+          SqlSessionProxy sqlSessionProxy = (SqlSessionProxy) sqlSessionFactoryProxy.openSession(false);
+          sqlSessionProxy.commit();
+          sqlSessionFactoryProxy.closeSession();
+          // 트랜잭션이 유지되는 동안 수행된 모든 작업을 승인하려면,
+          // Thread 보관소에 저장된 SqlSessionProxy 객체를 꺼내서 commit()을 호출한다.
+        }
+
+        public void rollback() {
+          SqlSessionProxy sqlSessionProxy = (SqlSessionProxy) sqlSessionFactoryProxy.openSession(false);
+          sqlSessionProxy.rollback();
+          sqlSessionFactoryProxy.closeSession();
+          // 트랜잭션이 유지되는 동안 수행된 모든 작업을 취소하려면,
+          // Thread 보관소에 저장된 SqlSessionProxy 객체를 꺼내서 rollback()을 호출한다.
+        }
+      }
+
+      
