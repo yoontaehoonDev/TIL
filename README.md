@@ -684,7 +684,7 @@
       - outer
         - join ~ on 의 문제점을 해결한다.
         - Left 테이블을 기준으로 Right 테이블의 데이터를 연결한다.
-        - 만약, Left 테이블과 일차하는 데이터가 Right 테이블에 없더라도
+        - 만약, Left 테이블과 일치하는 데이터가 Right 테이블에 없더라도
           Left 테이블의 데이터를 출력한다.
           
 
@@ -3231,3 +3231,52 @@
             number와 name 값은 url에서 설정
             ```
             
+
+# 2021-04-20
+  - 세션
+    - 로그인 중인 기간 동안, 사용하는 객체를 가리킨다.
+    - 한 작업을 여러 단계에 거치는 사용하는 객체.
+  
+  - static 복습
+    - static은 모든 인스턴스가 공유 가능하다.
+      따라서, thread safe가 아니다.
+  
+  - Thread 사용
+    - 매번 쓰레드를 생성하는 건 비효율적이다.
+      따라서, 유휴 상태인 쓰레드를 재사용한다.
+  
+  - shutdownNow 와 shutdown 차이
+    - shutdown은 대기중인 쓰레드까지 다 처리하고 난 뒤에 종료한다.
+    - shutdownNow는 대기중인 쓰레드가 있어도, 지정된 시간이 지나면 종료한다.
+
+  - 실습 프로젝트
+    - 세션을 이용한 로그인 / 로그아웃 기능 구현
+    ```
+    public class Session {
+      private Map<String,Object> repository = new HashMap<>();
+
+      public void setAttribute(String name, Object v) {
+        repository.put(name, v);
+      }
+
+      public Object getAttribute(String name) {
+        return repository.get(name);
+      }
+
+      public void invalidate() {
+        repository.clear();
+      }
+    }
+    ```
+    setAttribute는 repository에 값을 저장하고,
+    getAttribute는 repository의 값을 꺼내온다.
+    그리고 invalidate는 세션 데이터들을 모두 초기화 시킨다.
+
+    클라이언트가 접속해 있는 동안 유효한 객체이다.
+    만일, 클라이언트가 로그아웃을 하면, 세션 데이터는 삭제된다.
+
+
+# 2021-04-21
+  - 
+    
+    
