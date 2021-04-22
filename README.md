@@ -3447,4 +3447,45 @@
         }
       }
 
+
+# 2021-04-22
+  - 트랜잭션 제어 코드 캡슐화
+    - TransactionTemplate 클래스
+    ```
+    public class TransactionTemplate {
+
+      private TransactionManager txManager;
+      // 트랜잭션 코드를 제어하기 위해, TransactionManager 클래스를 포함한다.
+
+      public TransactionTemplate(TransactionManager txManager) {
+        this.txManager = txManager;
+      }
       
+      public Object execute(TransactionCallBack cb) throws Exception {
+        // execute 메소드에서 TransactionCallback 파라미터를 받는다.
+        // 서비스 객체에서 new TransactionCallback 인터페이스를 생성하고,
+        // doInTransaction() 메소드를 오버라이딩해서 코드들을 트랜잭션으로 묶어서 실행한다.
+
+        txManager.beginTransaction();
+        execute 메소드를 호출하면, 바로 트랜잭션을 시작한다.
+
+        try {
+          Object result = cb.doInTransaction();
+          txManager.commit();
+          return result;
+        }
+        // Object 타입으로 TransactionCallback의 doInTransaction() 메소드의 결과를 치환한다.
+        // 서비스에서 오버라이딩해서 사용하기에, 호출된 doInTransaction() 메소드의 리턴 타입은
+        // Object 타입이지만, Integer 타입으로 타입 캐스팅하여 리턴 타입을 맞춰서 결과를 보낸다.
+        // 그래서 Object 타입으로 값을 오류없이 받을 수 있다.
+        // 그리고 commit() 메소드를 실행하여, 데이터 변경 결과를 반영한다.
+
+        catch (Exception e) {
+          txManager.rollback();
+          throw e;
+        }
+        // 예외가 발생할 경우, rollback() 메소드를 실행하여 데이터 변경 결과를 반영하지 않는다.
+      }
+    }
+    ```
+    
