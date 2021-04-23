@@ -3488,4 +3488,59 @@
       }
     }
     ```
+
+
+# 2021-04-23
+  - Consumer
+    - Consumer는 함수적 인터페이스이다.
+      매개변수를 받아 소비만 하고, 리턴 값을 가지지 않는다.
+      그리고 매개변수를 받는 메소드는 accept 이다.
+
+    - 응용
+    ```
+    public class Test {
+      public static void main(String[] args) {
+        Consumer<String> c = t -> System.out.printf(t <- 는 Consumer 매개변수\n", t);
+        
+        c.accept("test code");
+      }
+
+      // BiConsumer 사용 (매개변수를 복수로 사용할 때)
+      BiConsumer<Integer, String> bi = (x, y) -> 
+      System.out.printf("%d <- 매개변수 x값 / %s <- 매개변수 y값\n");
+      bi.accept(100, "test code");
+    }
+    ```
     
+    람다식을 사용한다.
+    
+  - Supplier
+    - Consumer와 반대 기능을 가진다.
+      그래서 매개변수는 없고, 리턴 값을 가진다.
+      
+    - 응용
+    ```
+    public class Test {
+      public static void main(String[] args) {
+        Supplier<String> s = () -> {
+          String result = "test code";
+          return result;
+        };
+
+        System.out.printf("%s <- Supplier 리턴 값\n", s.get());
+
+        Supplier<List<User>> list = () -> {
+          List<User> name = new ArrayList<>();
+          name.add(new User("하나"));
+          name.add(new User("미니"));
+          name.add(new User("재희"));
+
+          return name;
+        };
+
+        for(User user : list.get()) {
+          System.out.printf("이름 : %s\n", user.getName());
+        }
+      }
+    }
+    ```
