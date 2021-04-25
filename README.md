@@ -3689,3 +3689,127 @@
         @AfterEach 가 있는 메소드는 저장된 값을 비우는 clear()를 실행한다.
     
 
+# 2021-04-25
+  - 스프링 응용
+    - ifPresent 사용
+      - Consumer 함수가 제공된다. 따라서, 람다식으로 표현이 가능하다.
+      ```
+      private void validatePremadeMember(Member member) {
+        memberRepository.findByName(member.getName())
+          .ifPresent(m -> { throw new IllegalStateException("이미 존재하는 회원"); });
+      }
+      ```
+      
+      memberRepository의 findByName의 리턴 타입은 Optional<Member> 이다.
+      findByName 메소드를 이용하여, 파라미터 값으로 받은 member의 name을
+      확인한다. ifPresent로 넘어가서, name과 일치하는 값이 있다면,
+      이미 존재하는 회원이라는 문자열을 예외로 발생시킨다.
+
+    - @Controller 의미
+      - @Controller를 포함한 클래스는
+        Spring Container가 MemberController 객체를 생성해서
+        넣어두고 관리한다.
+
+        스프링이 관리하면, 스프링 컨테이너에 등록하고
+        스프링 컨테이너로부터 받아서 사용한다.
+
+        만일, 인스턴스를 생성해서 사용한다면 여러 컨트롤러들이 공유해서
+        사용 가능해진다. 그래서 하나만 생성해놓고 같이 공용으로 쓰면 된다.
+        
+    - @Autowired
+      - 자동으로 연결을 한다는 의미이다.
+      ```
+      private final MemberService memberService;
+
+      @Autowired
+      public MemberController(MemberService memberService) {
+        this.memberService = memberService;
+      }
+      ```
+      
+      @Autowired는 memberService를 스프링 컨테이너에 올리고,
+      연결을 시킨다.
+
+      MemberService 클래스에 @Service를 붙이면,
+      스프링이 MemberService를 등록한다.
+
+      @Autowired를 사용한 객체들 순서
+      MemberService는 MemberRepository를 주입 받는다.
+      MemberController는 MemberService를 주입 받는다.
+      따라서, 위 연결고리는 아래와 같다.
+      MemberController -> MemberService -> MemberRepository
+      
+    - @Bean을 이용하여 스프링 컨테이너에 등록
+      - Config 클래스 생성
+      - @Configuration 추가
+      - @bean으로 MemberService를 올리고,
+        MemberRepository도 올린다.
+        그리고 생성자가 필요한 memberService는
+        memberRepository를 추가한다.
+      
+      - 장점
+        - 설정 파일을 본인이 관리하기 때문에
+          상황에 따라 구현 클래스를 변경해야 할 때,
+          config 클래스 코드만 변경하면 된다.
+          그래서 유지보수에 용이하다.
+      
+    - DI의 3가지 방법
+      - 필드 주입
+        - `@Autowired private MemberService memberService;`
+      
+      - Setter 주입
+        ```
+        @Autowired
+        public void setMemberService(MemberService memberService) {
+          this.memberService = memberService;
+        }
+        ```
+      
+      - 생성자 주입
+        ```
+        private MemberService memberService;
+
+        @Autowired
+        public MemberController(MemberService memberService) {
+          this.memberService = memberService;
+        }
+        ```
+    
+    - @Autowired 사용 시기
+      - 스프링 Bean에 등록이 되어 있어야 사용 가능하기 때문에
+        클래스에 애노테이션을 추가하거나, 아니면 @Bean을 사용해야 한다.
+
+    - @Transactional 역할
+      - 테스트 케이스에 이 애노테이션이 있을 경우, 
+        테스트 시작 전에 트랜잭션을 시작하고, 테스트 종류 후, 롤백한다.
+        그래서 DB에 영향을 미치지 않는다.
+    
+    - auto_increment 역할
+      - 스프링에서는 IDENTITY가 대신한다.
+        - `@GeneratedValue(Strategy = GenerationType.IDENTITY)`
+    
+    - EntityManager 역할
+      - JPA는 EntityManager로 동작이 된다.
+        build.gradle에서 data-jpa를 주입하면,
+        SpringBoot가 자동으로 EntityManager를 생성한다.
+        그래서 JPA를 사용하려면, EntityManager를 주입 받아야 한다.
+
+    - JPQL(Java Persistence Query Language)
+      - 보통 테이블 대상으로 쿼리를 날리지만,
+        JPQL은 객체를 대상으로 쿼리를 날린다.
+        그럼 SQL로 번역된다.
+    
+    - AOP 개념
+      - 공통 관심 사항을 등록해서 원하는 곳에 적용한다.
+        cross-cutting concern 이라 불리며, 프록시를 사용한다.
+        예를 들면, 기존 스프링 컨테이너에서
+        MemberController가 MemberService를 의존하고 있었다면,
+        AOP를 적용하면,
+        MemberController가 프록시 MemberService를 의존하고,
+        프록시 MemberService는 기존 MemberService를 의존한다.
+      
+      - 코드 적용
+        - AOP 클래스에 @Aspect를 추가한다.
+          해당 클래스가 횡단관심사 클래스임을 알리는 애노테이션이다.
+          자동으로 Bean 등록이 되는 것이 아니므로, 추가로
+          @Component 애노테이션을 추가하거나, 직접 @Bean을 등록해야 한다.
