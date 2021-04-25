@@ -3544,3 +3544,148 @@
       }
     }
     ```
+
+
+# 2021-04-24
+  - 스프링 이해
+    - 컨트롤러(Controller)의 역할
+      - 웹 MVC의 C - Controller 이며,
+        MVC 중에서 가장 먼저 실행되는 부분이다.
+        클라이언트가 요청을 하면,
+        요청 받은 데이터를 가공해서 모델에 전달한다.
+      
+    - 서비스(Service)의 역할
+      - 핵심 비지니스 로직이다.
+        클라이언트의 요청을 받으면, 받은 요청을
+        서버에서 처리하고 응답을 한다.
+        그래서 DAO 역할을 하는 부분이다.
+    
+    - 리포지토리(Repository)의 역할
+      - DB에 접근하고, 도메인 객체를 DB에 저장 및 관리를 한다.
+        그래서 서비스는 직접 DB에 접근하지 않고,
+        리포지토리가 직접 접근하여, 서비스의 요청을 수행한다.
+    
+    - 도메인(Domain)의 역할
+      - 비지니스 도메인 객체이다.
+        예를 들면, 회원/주문/상품 등 주로 DB에 저장되고
+        관리되는 객체들을 의미한다.
+    
+    - Optional 기능
+      - 조회중에 값을 찾지 못 하면, null값을 리턴한다.
+        그래서 if문을 사용할 필요가 없다.
+        `Optional.ofNullable(map.get(id));`
+        map에서 id를 꺼낼 때, 찾는 값이 아니라면 null을 준다.
+    
+    - filter 기능
+    ```
+    public Optional<Member> findByName(String name) {
+    return store.values().stream()
+            .filter(member -> member.getName().equals(name))
+            .findAny();
+    }
+    ```
+    
+    store.values() 는 멤버들의 값들을 의미한다.
+    즉, List인 셈이다.
+    member의 name이 파라미터 name과 일치하면, findAny() 메소드를 통해 리턴한다.
+    만일, 일치하지 않는다면 null을 리턴한다.
+
+    - @AfterEach
+      - 콜백 메소드이다.
+        메소드가 끝날 때마다, 호출하는 애노테이션이다.
+    
+    - save, findByName, findAll 테스트 코드 작성
+    ```
+    MemoryMemberRepository repository = new MemoryMemberRepository();
+
+    @Test
+    public void save() {
+      Member member = new MembeR();
+      member.setName("spring");
+
+      repository.save(member);
+      Member result = repository.findById(member.getId()).get();
+
+      assertThat(member).isEqualTo(result);
+    }
+    ```
+
+    Member 인스턴스를 생성하고,
+    name 필드에 값을 넣는다.
+    그리고 MemoryMemberRepository 객체의 save 메소드에
+    member 파라미터를 넣고 실행한다.
+    그럼 member의 id와 name은 저장되고 리턴된다.
+    그 다음, Member 객체 result에 repository.findById 메소드를
+    member.getId()을 넣고 호출하고, 결과를 넣는다.
+    
+    findById 메소드 내부에서 전달받은 id 파라미터를 가지고,
+    Optional.ofNullable 메소드를 통해,
+    id와 일치한 값이 존재하면 result는 그 값으로 치환되고,
+    일치한 값이 없으면, result는 null 값으로 치환된다.
+    
+    member 중에 result와 일치하는 값이 있는지 assertThat을 통해 검증한다.
+    값이 존재하면, 테스트는 통과한다.
+
+    ```
+    @Test
+    public void findByName() {
+      Member m = new Member();
+      m.setName("test");
+      repository.save(m);
+
+      Member m2 = new Member();
+      m2.setName("test2");
+      repository.save(m2);
+
+      Member result = repository.findByName("test2").get();
+      assertThat(m).isEqualTo(result);
+    }
+    ```
+    
+    Member 인스턴스를 생성하고, name 필드에 test, test2 문자열을 넣는다.
+    그리고 save 메소드를 통해 저장한다.
+    result에 repository.findByName("test2").get() 을 치환한다.
+    만약, test2 값이 없다면, result의 값은 null이다.
+    반대로 있으면, 파라미터 값 그대로 치환된다.
+    그리고 m의 값과 result의 값이 같은지 assertThat을 통해 검증한다.
+    
+    여기서 주의 깊게 볼 부분은 assertThat(값) 이다.
+    m이 m2로 바뀐다면, 테스트는 통과하지만,
+    m을 그대로 실행하면 통과하지 못 한다.
+    왜냐하면, m의 값과 직접 비교하기 때문이다.
+    m의 값은 test이고, m2의 값은 test2이다.
+    따라서, 결과는 참이 될 수 없다.
+
+    ```
+    @Test
+    public void findAll() {
+      Member m = new Member();
+      m.setName("test1");
+      repository.save(m);
+      m.setName("test2");
+      repository.save(m);
+
+      List<Member> list = repository.findAll();
+      assertThat(list.size()).isEqualTo(2);
+    }
+    ```
+
+    list에는 총 2개의 값들이 치환된다.
+    저장된 값들이 총 2개이기 때문이다.
+    그리고 list.size()는 2가 되며, isEqualTo(2)와 일치하므로,
+    테스트는 통과한다.
+
+    - @AfterEach의 필요성
+      - 테스트 코드는 순서대로 진행을 보장하지 않는다.
+        그러므로, @AfterEach를 추가하고 진행하는 게 좋다.
+        간단히 예를 들자면,
+        @AfterEach를 사용하지 않는다면
+        맨 처음 save()가 실행되면, repository에는 하나의 데이터가
+        추가된다. 그 상태로 findAll()로 넘어가서 실행하면,
+        list.size()는 2개가 아닌, 3개가 된다.
+        따라서, 기존 isEqualTo(2)와 일치하지 않게 되면서 오류를 초래한다.
+        이러한 이유 때문에 @AfterEach가 필요하다.
+
+        @AfterEach 가 있는 메소드는 저장된 값을 비우는 clear()를 실행한다.
+    
+
