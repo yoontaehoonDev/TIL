@@ -3815,7 +3815,7 @@
           @Component 애노테이션을 추가하거나, 직접 @Bean을 등록해야 한다.
 
 
-# 2021-04-27
+# 2021-04-26
   - HTTP
     - 인터넷 통신
       - 클라이언트와 서버의 통신 방식
@@ -3905,11 +3905,256 @@
         그래서 DNS를 등록해서 사용하면, IP로 접속할 필요가 없다.
         물론, IP로 접속하는 것이 DNS로 하는 것보다 더 빠르다.
     
-    - URI 개념
-      - Uniform Resources Identifier
-        - URI 안에 URL, URN이 있다.
+
+# 2021-04-27
+  - URI 개념
+    - Uniform Resources Identifier
+      - URI 안에 URL, URN이 있다.
+    
+    - Uniform : 리소스 식별하는 통일된 방식
+    - Resource : 자원, URI로 식별할 수 있는 모든 것(제한이 없다.)
+    - Identifier : 다른 항목과 구분하는데 필요한 정보
+    
+    - URL : 리소스가 있는 위치를 지정
+    - URN : 리소스에 이름을 부여
+
+    - URL 문법
+      - scheme://[userinfo@]host[:port][/path][?query][#fragment]
+      - https://www.google.com:443/search?q=hello&hl=ko
+
+      - https = 프로토콜
+      - www.google.com = 호스트명
+      - 443 = 포트번호
+      - /search = 패스
+      - q=hello&hl=ko = 쿼리 파라미터
+        key=value 형태
+
+      - userinfo는 URL에 사용자 정보를 포함해서 인증하는 용도로 사용하지만, 
+        실제로는 거의 사용하지 않는다.
       
-      - Uniform : 리소스 식별하는 통일된 방식
-      - Resource : 자원, URI로 식별할 수 있는 모든 것(제한이 없다.)
-      - Identifier : 다른 항목과 구분하는데 필요한 정보
+      - http 는 80 포트 사용
+      - https 는 443 포트 사용
+  
+  - 웹 브라우저 요청 흐름
+    - 웹 브라우저를 통해 서버 접속을 할 때의 흐름
+      주소를 입력해서 접속을 할 때, HTTP 요청 메시지 생성을 한다.
       
+    - 요청 메시지의 예시
+    ```
+    GET /search?q=hello&hl=ko HTTP/1.1
+    Host: www.google.com
+    ```
+
+    - HTTP 메시지 전송
+      - 1. 웹 브라우저가 HTTP 메시지를 생성한다.
+      - 2. SOCKET 라이브러리를 통해 TCP/IP에 연결하여 데이터를 전달한다.
+      - 3. TCP/IP 패킷을 HTTP 메시지를 포함해서 생성한다.
+      - 4. LAN카드를 통해 인터넷으로 전송된다.
+      - HTTP 메시지는 TCP/IP 패킷이 감싸서 전송한다.
+
+    - HTTP 응답 메시지
+    ```
+    HTTP/1.1 200 OK
+    Content-Type: text/html;charset=UTF-8
+    Content-Length: 3423
+    <html> ... </html>
+    ```
+
+    응답 메시지를 브라우저에 전달해서 화면에 렌더링한다.
+
+  - HTTP
+    - HyperText Transfer Protocol
+    - HTTP 메시지에 모든 것을 전송할 수 있다.
+      HTML, TEXT, IMAGE, 음성, 영상, 파일, JSON, XML 등
+    
+    HTTP/2 는 2015년에 나왔으며, 성능 개선을 하였다.
+    HTTP/3 는 현재진행중이며, TCP 대신 UDP를 사용하며 성능 개선중이다.
+
+    - 기반 프로토콜
+      - TCP : HTTP/1.1, HTTP/2
+      - UDP : HTTP/3
+    
+  - Stateful 과 Stateless
+    - Stateful = 상태 유지
+    - Stateless = 상태 유지 X
+    
+    - Stateful은 중간에 상태 정보가 바뀌면, 장애를 초래한다.
+    - Stateless는 중간에 상태 정보가 바뀌어도 상관없다.
+    
+    - Stateful은 항상 같은 서버가 유지되어야 한다.
+      반면에, Stateless는 서버가 교체되어도 이상이 없다.
+    
+    - Stateless의 한계
+      - 로그인의 경우, Stateful 방식을 사용해야 한다.
+        추가적인 단점은 데이터를 Stateful에 비해 더 많이 보낸다.
+    
+  - 비연결성
+    - 장점
+      - HTTP는 기본이 연결을 유지하지 않는 모델이다.
+        빠른 속도로 응답을 한다.
+        자원을 효율적으로 사용할 수 있다.
+    
+    - 단점
+      - TCP/IP 연결을 새로 맺어야 한다 -> 3 WAY HANDSHAKE 시간 추가
+        그래서 HTTP 지속 연결(Persistence Connections)로 문제 해결
+    
+    - 기존 방식 : 연결 -> 요청/응답 -> 종료 = 반복
+    - 지속 연결 방식 : 연결 -> 요청/응답 -> 연결 유지 = 반복
+  
+  - 시작 라인(요청 메시지)
+    - start-line = request-line / status-line
+    - request-line = method SP(공백) request-target SP HTTP-version CRLF(엔터)
+    
+    - HTTP 메소드 (GET : 조회)
+    - 요청 대상 (/search?q=hello&hl=ko)
+    - HTTP Version
+
+  - HTTP 메소드
+    - 종류 : GET / POST / PUT / DELETE
+      - 서버가 수행해야 할 동작 지정
+      - GET : 리소스 조회
+      - POST : 요청 내역 처리, 주로 등록에 사용
+      - PUT : 리소스를 대체, 해당 리소스가 없으면 생성
+      - PATCH : 리소스 부분 변경
+      - DELETE : 리소스 삭제
+    
+    - 요청 대상
+      - 절대 경로로 시작한다.
+
+    - 응답 메시지
+      - status-line = HTTP-version SP status-code SP reason-phrase CRLF
+      - HTTP 상태 코드
+        - 200 성공
+        - 400 클라이언트 요청 오류
+        - 500 서버 내부 오류
+    
+    - HTTP 헤더
+      - header-field = field-name ":" OWS field-value OWS
+        Ex) Content-Type: text/html;charset=UTF-8
+      
+      - 용도
+        - HTTP 전송에 필요한 모든 부가 정보
+          Ex) 메시지 Body의 내용, 메시지 Body의 크기, 압축, 인증 등
+      
+    - HTTP 메시지 Body
+      - 실제 전송할 데이터를 포함한다.
+      - HTML문서, 이미지, 영상, JSON 등등
+        Byte로 표현할 수 있는 모든 데이터는 전송 가능하다.
+    
+    - 기타 메소드
+      - HEAD, OPTION, CONNECT, TRACE
+    
+    - GET 메소드
+      - 서버에 전달하고 싶은 데이터는 QUERY(쿼리 파라미터)를 통해서 전달
+
+      - 요청
+      ```
+      GET /members/100 HTTP/1.1
+      Host: localhost:8080
+      ```
+      - 응답
+      ```
+      HTTP/1.1 200 OK
+      Content-Type: application/json
+      Content-Length: 34
+      
+      {
+        "username": "tester",
+        "age": 30
+      }
+      ```
+    
+    - POST 메소드
+      - 요청 데이터를 처리한다.
+      - 메시지 Body를 통해, 서버로 요청 데이터를 전달한다.
+      - 서버는 요청 데이터를 처리한다.
+      - 주로, 전달된 데이터로 신규 리소스 등록, 프로세스 처리에 사용된다.
+
+      - 요청
+      ```
+      POST /members HTTP/1.1
+      Content-Type: application/json
+
+      {
+        "username": "tester",
+        "age": 30
+      }
+      ```
+
+      - 응답
+      ```
+      HTTP/1.1 201 Created
+      Content-Type: application/json
+      Content-Length: 34
+      Location: /members/100
+      {
+        "username": "tester"
+        "age": 30
+      }
+      ```
+
+      - POST는 주로 다음과 같은 기능에 사용된다.
+        게시판 글쓰기, 댓글 쓰기, 신규 생성, 내용 추가 등등
+        
+        - 새 리소스 생성해서 등록한다.
+        - 요청 데이터 처리
+          - 상품주문 -> 결제완료 -> 배달시작 -> 배달완료
+    
+    - PUT 메소드
+      - 리소스가 있으면 대체하고, 없으면 생성한다.
+      - 클라이언트가 리소스를 식별한다
+        클라이언트가 리소스 위치를 알고 URI를 지정한다
+
+      - 주의할 점
+        - 3개의 필드가 있는데, 1개의 필드만 수정 요청하면,
+          나머지 2개의 필드는 삭제된다.
+          따라서, 전부 명시를 해야 하거나 PATCH 메소드를 사용해야 한다.
+        ```
+        PUT /members/100 HTTP/1.1
+        Content-Type: application/json
+
+        {
+          "username"= "tester",
+          "age"= 30;
+        }
+        ```
+        여기서 age만 수정하려고 하면, username의 필드는 삭제된다.
+    
+    - PATCH 메소드
+      - 리소스 부분을 변경한다
+        말 그대로 부분 변경을 할 수 있기 때문에
+        명시되지 않은 필드가 있어도 그 필드는 삭제되지 않는다.
+        결론은 PUT 메소드 보다 안정적이다.
+
+    - DELETE 메소드
+      - 리소스를 제거한다.
+      ```
+      DELETE /members/100 HTTP/1.1
+      Host: localhost:8080
+      ```
+  
+  - HTTP 메소드 속성
+    - 안전
+      - 호출해도 리소스를 변경하지 않는다.
+        GET 방식이 대표적이다.
+    
+    - 멱등 (Idempotent)
+      - 몇 번을 호출하더라도, 결과값이 바뀌지 않는다.
+      - GET : 몇 번을 조회하든 같은 결과가 조회된다.
+      - PUT : 결과를 대체한다. 딸서 같은 요청을 여러 번 해도 결과는 동일하다.
+      - DELETE : 결과를 삭제한다. 위와 같다.
+
+      - POST : 멱등이 아니다. 예를 들면, 결제를 두 번 이상 호출하면,
+               중복 처리 된다.
+      
+    - 활용
+      - 자동 복구 매커니즘
+        - DELETE를 호출했는데 서버에서 응답을 하지 않으면,
+          클라이언트는 재시도를 한다.
+    
+      - 재요청 중간에 다른 곳까지 리소스를 변경하면,
+        멱등은 그것까지는 고려하지 않는다.
+        Ex) Original GET -> PUT(중간에 값 변경) -> Changed GET
+  
+    - 캐시가능 (Cacheable)
+      - GET, HEAD,  POST, PATCH 는 캐시가 가능하다.
