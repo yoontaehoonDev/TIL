@@ -4158,3 +4158,122 @@
   
     - 캐시가능 (Cacheable)
       - GET, HEAD,  POST, PATCH 는 캐시가 가능하다.
+
+
+# 2021-04-29
+  - 클라이언트에서 서버로 데이터 전송할 때의 4가지 상황
+    - 정적 데이터 조회
+      - 이미지, 텍스트 문서
+    
+    - 동적 데이터 조회
+      - 검색, 게시판 정렬 및 필터 등
+    
+    - HTML Form 을 통한 데이터 전송
+      - 회원 가입, 상품 주문, 데이터 변경
+    
+    - HTML API를 통한 데이터 전송
+      - 회원 가입, 상품 주문, 데이터 변경
+      - 서버 to 서버, 앱 클라이언트, 웹 클라이언트(Ajax)
+
+    
+    - 정적 데이터를 조회할 때
+      - 쿼리 파라미터 없이, 리소스 경로로 단순하게 조회가 가능하다
+    
+    - 정적 데이터를 조회할 때
+      - 쿼리 파라미터(key=value)를 사용해서 데이터를 전달한다.
+    
+    - HTML Form 데이터 전송을 할 때
+    ```
+    <form action="/save" method="post" enctype="multipart/form-data">
+      <input type="text" name="username" />
+      <input type="text" name="age" />
+      <input type="file" name="file1" />
+      <button type="submit">전송</button>
+    </form>
+    ```
+  
+  - HTTP 요청 메시지
+  ```
+  POST /save HTTP/1.1
+  Host: localhost:8080
+  Content-Type: multipart/form-data; boundary=---XXX
+  Content-Length: 10457
+
+  ---XXX
+  Content-Disposition: form-data; name="username"
+
+  kim
+  ---XXX
+  Content-Disposition: form-data; name="age"
+
+  20
+  ---XXX
+  Content-Disposition: form-data; name="file1"; filename="test.png"
+  Content-Type: image/png
+  ```
+
+  - HTTP API 데이터 전송
+  ```
+  POST /members HTTP/1.1
+  Content-Type: application/json
+  {
+    "username": "test",
+    "age": 20
+  }
+  ```
+  - 앱 클라이언트 (모바일)
+  - 서버 to 서버
+  - 웹 클라이언트
+    - HTML에서 Form 전송 대신에 JS를 통한 통신에 사용(Ajax)
+  
+  - HTTP API 설계 예시
+    - HTTP API 컬렉션
+      - POST 기반 등록
+      - Ex) 회원 관리 API 제공
+    
+    - HTTP API 스토어
+      - PUT 기반 등록
+      - Ex) 정적 콘텐츠 관리, 원격 파일 관리
+    
+    - HTTP FORM 사용
+      - 웹 페이지 회원 관리
+      - GET, POST만 지원
+  
+    - 회원 목록 및 조회 = GET
+    - 회원 등록 = POST
+    - 회원 수정 = PATCH, PUT, POST
+    - 회원 삭제 = DELETE
+
+  - POST 신규 자원 등록 특징
+    - 클라이언트는 등록될 리소스의 URI를 모른다.
+      - 회원등록 /members -> POST
+      - POST /members
+    
+    - 서버가 새로 등록된 리소스 URI를 생성해준다.
+      - HTTP/1.1 201 Created
+        Location: /members/100
+    
+  - 컬렉션
+    - 서버가 관리하는 리소스 디렉토리
+    - 서버가 리소스의 URI를 생성하고 관리
+    - 여기서 컬렉션은 /members
+    
+  - 파일 관리 시스템
+    - API 설계 - PUT 기반 등록
+    - 파일 목록 및 조회 - GET
+    - 파일 등록 - PUT (없으면 새로 생성, 있으면 덮어쓰기)
+    - 파일 삭제 - DELETE
+    - 파일 대량 등록 -> POST
+    
+  - 컨트롤 URI
+    - 문서, 컬렉션, 스토어로 해결하기 어려운 추가 프로세스 실행
+    - 동사로 직접 사용
+      Ex) /members/{id}/delete
+    
+  - 상태 코드
+    - 100번대 - 요청이 수신되어 처리중
+    - 200번대 - 요청 정상 처리
+    - 300번대 - 요청을 완료하려면, 추가 행동 필요
+    - 400번대 - 클라이언트 오류
+    - 500번대 - 서버 오류
+
