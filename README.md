@@ -4277,3 +4277,113 @@
     - 400번대 - 클라이언트 오류
     - 500번대 - 서버 오류
 
+  - Servlet / GenericServlet / HttpServlet
+    - Servlet
+      - 메소드 종류
+        - init()
+          - Servlet 객체 생성 후, 생성자 다음으로 호출되는 메소드
+        
+        - service()
+          - 클라이언트 요청에 의해 실행되는 메소드
+        
+        - destroy()
+          - 웹 애플리케이션을 종료할 때 호출되는 메소드
+        
+        - getServletInfo()
+          - Servlet Container 가 관리자 화면을 출력할 때 호출되는 메소드
+        
+        - getServletConfig()
+          - Servlet 에서 작어을 수행하는 중, 관련 설정 정보를 꺼낼 때
+            호출되는 메소드.
+            이 메소드의 리턴타입은 ServletConfig인데, 이 객체를 이용하여
+            Servlet 설정 정보를 알아낼 수 있다.
+
+    - GenericServlet
+      - 추상클래스이며, Servlet 인터페이스를 상속 받는다.
+      - GenericServlet 을 상속 받은 클래스는
+        service() 메소드만 오버라이딩하면 된다.
+        왜냐하면, GenericServlet 내부에서 이미 Servlet 인터페이스
+        추상 메소드들을 오버라이딩했기 때문이다.
+        추가로, java.io.Serialize 인터페이스를 구현하기에
+        serialVersionUID 변수 값을 설정해야 한다.
+
+    - HttpServlet
+      - 추상클래스이며, GenericServlet 추상클래스를 상속 받는다.
+      - doGet(), doPost(), doHead(), doPut() 등을 호출하게 프로그램 되어 있다.
+      - HTTP 프로토콜을 다루려면, GenericServlet이 아닌 HttpServlet을 상속 받아
+        Servlet 클래스를 생성한다.
+
+    - Servlet 구동 과정
+      - 1. 웹 브라우저가 Servlet 실행을 요청한다.
+      - 2. Servlet Container는 해당 URL의 Servlet 객체를 찾는다.
+      - 3. Servlet 객체가 생성되지 않았다면,
+           Servlet 클래스에 대해 인스턴스를 생성하고, 생성자를 호출한다.
+           init()을 호출한다 -> service()를 호출한다.
+
+           Servlet 객체가 생성되어 있다면,
+           service()를 호출한다.
+      - 4. 웹 애플리케이션이 종료되면, destroy()를 호출한다.
+
+      - 특별한 옵션을 주지 않는 이상, 클라이언트가 최초로
+        Servlet 실행을 요청하면, Servlet 인스턴스를 생성한다.
+        그리고 시작과 끝을 알리는 init(), destroy()는 오직 한 번만 호출된다.
+        반면에, service()는 클라이언트가 요청할 때마다 호출된다.
+
+
+    - Servlet 사용 방법
+      - Servlet 클래스를 생성 후, Servlet Container 에 등록해야만
+        사용이 가능하다.
+
+    - 등록 방법 1.
+      - 웹 애플리케이션 배치 파일(web.xml)에 Servlet 정보를 등록한다.
+      - WEB-INF/web.xml DD File : Deployment Descriptor File
+      ```
+      <servlet>
+        <servlet-name>서블릿별명</servlet-name>
+        <servlet-class>서블릿 클래스의 전체 이름(패키지명 포함)</servlet-class>
+      </servlet>
+
+      <servlet-mapping>
+        <servlet-name>서블릿별명</servlet-name>
+        <url-pattern>클라이언트에서 요청할 때 사용할 URL(IT MNUST START AS /)</url-pattern>
+      </servlet-mapping>
+      ```
+
+    - 등록 방법 2.
+      - Servlet 클래스 선언부에 @WebServlet 애노테이션을 추가한다.
+      `@WebServlet("URL")` 등등
+
+    - Filter 사용 방법
+      - javax.servlet.Filter 인터페이스 규칙에 따라 작성한다.
+      - Filter의 용도
+        - Servlet 을 실행하기 전/후에 필요한 작업을 수행한다.
+        - 실행 전 Ex
+          - 웹브라우저로부터 받은 암호화된 파라미터 값을 Servlet에
+            전달하기 전에 암호 해제 한다. 혹은 압축된 데이터를
+            전달하기 전에 압축 ㅐ제한다.
+          - 클라이언트가 Servlet 을 실행할 권한이 있는지 검사한다.
+            Ex) 로그인 사용자인지 검사
+        
+        - 실행 후 Ex
+          - 클라이언트로 보낼 데이터를 압축하거나 암호화한다.
+        
+        - 구현 코드
+        ```
+        public class Filter implements Filter {
+          @Override
+          public void init(FilterConfig filterConfig) throws ServletException {}
+          // 웹 애플리케이션을 실행할 때 자동으로 Filter 객체를 생성하고,
+          // 자동으로 init 메소드를 호출한다. Filter가 사용할 자원을 이 메소드에서 준비한다.
+
+          @Override
+          public void destroy() {}
+          // 종료할 때 호출되는 메소드
+
+          @Override
+          public void doFilter(ServletRequest req, ServletResponse res, FilterChain chin) throws ServletException, IOException {}
+          // 요청이 들어올 때마다 호추로디는 메소드이다.
+          //
+        }
+        ```
+        
+
