@@ -4801,5 +4801,148 @@
       따라서 응답 헤더만 전송된다.
 
     - 검증 헤더와 조건부 요청
-    
+      - 캐시 유효 시간이 초과해도, 서버의 데이터가 갱신되지 않으면,
+        304 Not Modified + 헤더 메타 정보만 응답(Body가 없음)
+      
+      - 클라이언트는 서버가 보낸 응답 헤더 정보로 캐시의 메타 정보를 갱신한다.
+        클라이언트는 캐시에 저장되어 있는 데이터를 재활용한다.
+        결과적으로 네트워크 다운로드가 발생하지만, 용량이 적은 헤더 정보만
+        다운 받는다. 따라서, 매우 효율적이다.
+        ■ 개발자 모드에서 색이 진한 부분은 캐시 사용을 의미한다.
+      
+      - 검증 헤더
+        - 캐시 데이터와 서버 데이터가 같은지 검증하는 데이터
+        - Last-Modified, ETag(Entity Tag)
+      
+      - 조건부 요청 헤더
+        - 검증 헤더로 조건에 따른 분기
+        - if-Modified-Since: Last Modified 사용
+        - if-None-Match: ETag 사용
+        - 조건이 만족하면, 200 OK
+        - 조건이 만족하지 않으면, 304 Not Modified
+      
+        - if-Modified-Since = 이후에 데이터가 수정되었으면...
+        - 데이터 미변경 - 304 Not Modified = 전송 용량(헤더)
+        - 데이터 변경 - 200 OK = 전송 용량(헤더 + 바디)
+
+        - Last-Modified 와 if-Modified-Since의 단점
+          - 1초 미만(0.x초) 단위로 캐시 조정이 불가능하다.
+          - 날짜 기반의 로직을 사용한다. Ex) GMT(협정 세계시)
+          - 데이터를 수정해서 날짜가 다르지만,
+            같은 데이터를 수정해서 데이터 결과가 같은 경우
+          - 서버에서 별도의 캐시 로직을 관리하고 싶은 경우
+            Ex) 스페이스나 주석처럼 크게 영향이 없는 변경에서
+            캐시를 유지하고 싶을 때
+
+        - ETag 와 if-None-Match
+          - ETag(Entity Tag)
+            - 캐시용 데이터에 임의의 고유한 버전 이름을 달아둔다.
+              Ex) `Etag: "v1.0", ETag: "test1234"`
+            - 데이터가 변경되면, 이 이름을 바꿔서 변경함(Hash 재생성)
+              Ex) `ETag: "aa" -> ETag: "bb"`
+              정말 단순하게 ETag만 보내서 같으면 유지, 다르면 다시 받기
+          ```
+          HTTP/1.1 200 OK
+          Content-Type: image/jpeg
+          cache-control: max-age=60
+          ETag: "asdf"
+          Content-Length: 1234
+
+          Body values
+          ```
+          
+          브라우저 캐시에 ETag 값을 저장한다.
+          시간 초과 후, 재요청할 때 if-None-Match: "asdf"를 포함한 헤더를 보낸다.
+          만일, 서버의 ETag 값과 일치하면, 304 Not Modified 응답.
+          
+          캐시 제어 로직은 서버에서 완전히 관리한다.
+          
+      - 캐시 제어 헤더
+        - Cache-Control : 캐시 제어
+        - Pragma : 캐시 제어(하위 호환)
+        - Expires : 캐시 유효 기간(하위 호환)
+
+        - Cache-Control: max-age
+          - 캐시 유효 시간, 초 단위
+        
+        - Cache-Control: no-cache
+          - 데이터는 캐시해도 되지만, 항상 Original 서버에 검증하고 사용한다.
+            중간에 캐시 서버, 프록시 서버 등 존재한다.
+        
+        - Cache-Control: no-store
+          - 데이터에 민감한 정보가 있으므로, 저장하지 않는다.
+          - 메모리에서 사용하고 최대한 빨리 삭제한다.
+      
+      - 프록시 캐시
+        - 한국에 위치한 웹 브라우저가 미국에 있는 Origin 서버의 데이터를
+          요청 및 응답할 때 오래 걸린다. 그래서 프록시 캐시 서버를 한국에 두고
+          접속한다.
+
+        - Cache-Control: public
+          - 응답이 public 캐시에 저장되어도 된다.
+        
+        - Cache-Control: private
+          - 응답이 해당 사용자만을 위한 것이다.
+            private 캐시에 저장해야 함(default)
+        
+        - Cache-Control: s-maxage
+          - 프록시 캐시에만 적용되는 max-age
+        
+        - Age: 60 (HTTP 헤더)
+          - Origin 서버에서 응답 후, 프록시 캐시 내에 머문 시간
+        
+        - Cache-Control: must-revalidate
+          - 캐시 만료 후, 최초 조회시 Origin 서버에 검증해야 한다.
+          - Origin 서버에 접근 실패시, 반드시 오류가 발생해야 한다.
+            504(Gateway Timeout)
+          - must-revalidate는 캐시 유효 시간이라면, 캐시를 사용한다.
+        
+        - no-cache 기본 동작
+          - 웹 브라우저 -> 프록시 캐시[캐시 서버 요청(no-cache + ETag)]
+            -> Origin 서버[원 서버 요청(no-cache + ETag)] ->
+            응답 304 Not Modified(원서버 -> 프록시) ->
+            응답 304 Not Modified(프록시 -> 웹 브라우저) ->
+            웹 브라우저는 브라우저 캐시를 통해 캐시 데이터를 사용ㄴ
+
+        - must-revalidate 동작
+          - 프록시 캐시가 Origin 서버에 접근할 수 없는 경우,
+            항상 오류가 발생해야 하므로 504 Gateway Timeout 으로 응답한다.
+         
+
+# 2021-05-02
+  - 객체 지향 설계의 5가지 원칙 SOLID
+    - SRP (Single Responsibility Principle) 단일 책임 원칙
+      - 한 클래스는 하나의 책임만 가져야 한다.
+        한 클래스를 변경하는데, 여러 클래스도 다 변경해야 한다면,
+        단일 원칙이 깨진다.
+        Ex) UI 변경, 객체의 생성과 사용을 분리
+
+    - OCP (Open/Closed Principal) 개방-폐쇄 원칙
+      - 확장은 열려있고, 변경은 닫혀있다.
+        Ex) 인터페이스를 구현한 새로운 클래스를 만들어서 새로운 기능을 구현
+
+    - LSP (Liskov Substitution Principle) 리스코프 치환 원칙
+      - 프로그램의 객체는 프로그램의 정확성을 깨뜨리지 않으면서
+        하위 타입의 인스턴스로 바꿀 수 있어야 한다.
+      - 다형성에서 하위 클래스는 인터페이스 규칙을 다 지켜야 한다.
+        Ex) 자동차의 엑셀 기능은 원칙적으로 앞으로 가게 설계되어 있다.
+        하지만, 자동차의 인터페이스를 구현하는 클래스가 엑셀 메소드를
+        오버라이딩하여, 뒤로 가게 설계하면 그건 리스코프 치환 원칙을 깨는 것이다.
+
+    - ISP (Interface Segregation Principle) 인터페이스 분리 원칙
+      - 특정 클라이언트를 위한 인터페이스 여러 개가 범용 인터페이스 보다 낫다.
+        Ex) 하나의 인터페이스에 수많은 기능을 추가하면 복잡하다.
+        따라서, 여러 인터페이스로 나누어서 하면 코드를 수정해야 할 때
+        관리가 더 쉬워진다. 예를 들면, 자동차 인터페이스가 운전 인터페이스와
+        정비 인터페이스로 분리되면, 정비의 기능을 변경할 때 운전에 관련된
+        클래스를 변경할 필요가 없다.
+
+    - DIP (Dependency Inservion Principle) 의존관계 역전 원칙
+      - 구현 클래스에 의존하지 말고, 인터페이스에 의존해야 한다.
+        Ex) MemberService 클래스가 있다고 가정하자.
+        의존 객체인 MemberRepository 를 사용하지만,
+        MemberRepository를 구현한 클래스인 MemoryMemberRepository로
+        인스턴스를 생성한다. 그러면 인터페이스와 구현 클래스를 동시에 의존하므로,
+        의존관계 역전 원칙이 깨진다.
+
       
