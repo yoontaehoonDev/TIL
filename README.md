@@ -4961,4 +4961,136 @@
       - URL 인코딩(RFC 3986)
         - URI 표기법으로 사용할 수 없는 문자를 %기호를 사용하여
           문자 코드값으로 표현하는 것
-              
+  
+  - 관심사의 분리
+    - 객체를 생성하고, 연결하는 역할과 실행하는 역할이
+      명확히 분리된다.
+
+  - AppConfig 역할
+    - 생성자를 통해, 어떤 구현 객체를 주입할지는 외부
+      즉, AppConfig에서 결정한다.
+      그래서 서비스 클래스는 실행 코드에만 집중하면 된다.
+
+    - AppConfig 리팩토링
+      - 인스턴스 생성 클래스를 따로 분리해서 생성한다.
+      ```
+      return new MemberServiceImpl(new MemberRepository());
+      위 문을 아래로 분리한다.
+      return new MemberServiceImpl(memberRepository());
+      
+      private MemberRepository memberRepository() {
+        return new MemberRepository();
+      }
+      ```
+      
+      바로 인스턴스를 생성하지 않고, 메소드를 실행시켜 생성한다.
+      장점은 같은 인스턴스를 생성하는 메소드가 여러 개일 때,
+      단 하나의 메소드로 여러 곳에서 사용이 가능해서 유지보수에 용이하다.
+      
+
+# 2021-05-04
+  - IoC (제어의 역전)
+    - 프로그램의 제어 흐름을 외부에서 관리하는 것을 의미한다.
+      예를 들면, 
+  
+  - DI (의존관계 주입)
+    - 정적인 클래스 의존관계
+      - 클래스가 사용하는 import 코드만 보고, 의존관계를
+        쉽게 판단할 수 있다.
+        그래서 앱을 실행하지 않아도 분석이 가능하다.
+    
+    - 동적인 클래스 의존관계
+      - 애플리케이션 실행 시점에 실제 생성된 객체 인스턴스의 참조가
+        연결된 의존 관계다.
+  
+  - AppConfig 처럼 객체를 생성하고, 관리하면서 의존관계를 연결해
+    주는 것을 IoC 컨테이너 혹은 DI 컨테이너 라고 한다.
+  
+  - @Configuration = 설정 정보가 담긴 클래스
+    AppConfig 클래스에 선언을 한다.
+  
+  - 스프링 컨테이너
+    - ApplicationContext 를 스프링 컨테이너 라고 한다.
+      기존에는 개발자가 AppConfig를 사용해서 직접 객체를
+      생성하고 DI를 했다.
+
+      스프링 컨테이너는 @Configuration 이 붙은 AppConfig 를
+      설정 정보로 사용한다. 그리고 @Bean 이 붙은 메소드를 모두
+      호출해서 반환된 객체를 스프링 컨테이너에 등록한다.
+      
+      이렇게 스프링 컨테이너에 등록된 객체를 스프링 빈 이라고 한다.
+
+      스프링 빈은 @Bean이 붙은 메소드명을 스프링 빈의 이름으로 사용한다.
+      ```
+      @Bean
+      public MemberService memberSerivce() {}
+      ```
+      memberService 메소드 명이 스프링 빈의 이름이 된다.
+      
+      원래는 개발자가 필요한 객체를 AppConfig 를 사용해서
+      직접 조회했지만, 스프링 컨테이너를 사용하면 스프링 빈을
+      찾아서 사용해야 한다.
+      스프링 빈은 applicationContext.getBean() 메소드로 호출할 수 있다.
+      
+      ```
+      ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
+
+      applicationContext.getBean("스프링빈 이름", 클래스명.class);
+      applicationContext.getBean("memberService", MemberService.class);
+
+
+# 2021-05-05
+  - 스프링 빈 저장소
+    - 빈 저장소 안에는 빈 이름과 빈 객체가 있다.
+    - key = 빈 이름(memberService) / value = 빈 객체(리턴값);
+  
+  - 스프링 컨테이너 생성 과정
+    - ApplicationContext 는 스프링 컨테이너며 인터페이스이다.
+      스프링 컨테이너는 애노테이션 기반의 자바 설정 클래스로 만들 수 있다.
+    
+    - `1.` 
+    ```
+    ApplicationContext ac = new AnnotationConfigApplicationContext(AppConfig.class);
+    ```
+    - `2.` 
+    ```
+    @Bean
+    public MemberService memberService() {
+      return new MemberServiceImpl(memberRepository());
+    }
+    ```
+    빈 이름 : `memberSerivce` / 빈 객체 : `memberSerivceImpl`
+
+  - * 빈 이름은 항상 다른 이름을 부여 해야 한다.
+      왜냐하면, 같은 경우 다른 빈이 무시되거나,
+      기존 빈을 덮어버릴 수 있기 때문이다. 
+
+  - 스프링 빈 조회 방법
+    - `ac.getBean(빈 이름, 타입)`
+    - `ac.getBean(타입)`
+    - 둘 다 가능하다.
+
+    - 타입으로 조회시, 같은 타입의 스프링 빈이 둘 이상이면 오류가 발생한다.
+      getBeansOfType() 을 사용하면, 해당 타입의 모든 빈을 조회할 수 있다.
+
+    - 부모 타입으로 조회하면, 자식 타입도 함께 조회한다.
+      그래서 최사우이 객체인 Object 타입으로 조회하면,
+      모든 스프링 빈을 조회한다.
+    
+    - BeanFactory
+      - 스프링 컨테이너의 최상위 인터페이스이다.
+        스프링 빈을 관리하고 조회하는 역할을 담당하고,
+        getBean() 메소드를 제공한다.
+
+    - ApplicationContext
+      - BeanFactory 인터페이스를 상속 받아서 구현한다.
+        스프링 컨테이너이며, 빈 관리기능 + 편리한 부가 기능을 제공한다.
+        부가 기능을 예로 들자면,
+        메시지 소스를 활용한 국제화 기능이 있다.
+        한국에서 서버에 접속하면, 한국어로 출력을 해주고,
+        미국에서 접속하면 영어로 출력해준다.
+    
+  - 환경변수
+    - 로컬 = PC에서 개발하는 환경
+    - 개발 = 테스트 서버에 올려서 테스트하는 환경
+    - 운영 = 실제 프로덕션에 나가는 환경 (스테이지 = 운영)
