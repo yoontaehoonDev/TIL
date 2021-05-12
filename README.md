@@ -5094,3 +5094,115 @@
     - 로컬 = PC에서 개발하는 환경
     - 개발 = 테스트 서버에 올려서 테스트하는 환경
     - 운영 = 실제 프로덕션에 나가는 환경 (스테이지 = 운영)
+
+
+# 2021-05-10
+  - Mybatis 복습
+    - association의 역할
+      - 도메인에 있는 타 객체를 사용할 때 쓰인다.
+        예를 들면, 게시판 작성을 할 때 작성자 이름이 필요한데
+        여기서 도메인으로는 포함관계를 형성하여 가져와야 한다.
+        따라서 코드는 아래의 형태로 이루어진다.
+      
+      ```
+      private int no;
+      private String title;
+      private String content;
+      private Date createdDate;
+      private int viewCount;
+      private int commentCount;
+      private Member writer;
+      ```
+
+      그리고 Member의 writer는
+      Mybatis Mapper에서 association으로 선언을 해야 사용이 가능하다.
+
+      ```
+      <association property="writer" javaType="member">
+      <id column="writer_no" property="no"/>
+      <result column="writer_name" property="name"/>
+      </association>
+      ```
+
+      javaType은 도메인의 클래스명을 의미하고,
+      property 는 임의로 지정할 수 있다.
+      그리고 property는 인스턴스 필드의 네임이 오며,
+      column 은 association property명을 붙이고, _를 사용해서
+      property를 붙여서 사용한다.
+
+      실제 사용할 때는
+      ```
+      insert into board(title, cont, writer) 
+      values(#{title}, #{content}, #{writer.no})
+      ```
+      
+      writer.no 가 writer_no 와 일차한다.
+
+
+# 2021-05-11
+  - Filter 추가
+    - Filter 적용 방법 2가지
+      - web.xml 에 코드 추가
+      ```
+      로딩 코드
+      <filter>
+        <filter-name>적용할 클래스명</filter-name>
+        <filter-class>패키지명을 포함한 클래스명</filter-class>
+        <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+        </init-param>
+      </filter>
+
+      적용 코드
+      <filter-mapping>
+        <filter-name>적용된 클래스명</filter-name>
+        <url-pattern>적용할 URL</url-pattern>
+      </filter-mapping>
+
+      구현 코드
+        <filter>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <filter-class>com.pms.petopia.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+        </init-param>
+      </filter>
+
+      <filter-mapping>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+      </filter-mapping>
+      ```
+
+      - 클래스 선언부에 애노테이션 추가
+      ```
+      @WebFilter(value="/*")
+      public class 클래스명 {}
+      ```
+
+  - Listener 추가
+    ```
+    <listener>
+      <listener-class>패키지명을 포함한 클래스명</listener-class>
+    </listener>
+    ```
+
+  - Listener, Filter, Servlet이 공동으로 사용할 초기화 파라미터 설정
+    ```
+    InputStream mybatisConfigStream = Resources.getResourceAsStream(
+    servletContext.getInitParameter("mybatis-config"));
+    위 코드는 아래 코드를 로딩한다.
+
+    web.xml
+
+    <context-param>
+    <param-name>mybatis-config</param-name>
+    <param-value>com/pms/test/conf/mybatis-config.xml</param-value>
+    </context-param>
+    ```
+
+    
+
+    
