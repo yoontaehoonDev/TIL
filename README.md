@@ -4986,6 +4986,7 @@
       바로 인스턴스를 생성하지 않고, 메소드를 실행시켜 생성한다.
       장점은 같은 인스턴스를 생성하는 메소드가 여러 개일 때,
       단 하나의 메소드로 여러 곳에서 사용이 가능해서 유지보수에 용이하다.
+      싱클톤 패턴을 적용시킨 것이다.
       
 
 # 2021-05-04
@@ -5203,6 +5204,45 @@
     </context-param>
     ```
 
+
+# 2021-06-07
+
+  - Servlet Context 보관소의 개념
+    - 크게 4가지로 나뉘며, 각 파트는 종료되는 시점이 각기 다르다.
+    - ServletContext는 가장 바깥에 있으며, 애플리케이션이 시작되면 생성이 되고,
+      종료될 때 유효기간이 만료된다.
+      즉, 서버를 종료할 때 사라진다고 보면 된다.
+    
+    - HttpSession은 주로 로그인 정보나 요청하는 동안 공유할 정보를 담는다.
+      그래서 로그인을 하면, 정보가 생성되고 로그아웃을 하면 생성된 정보는 사라진다.
+      공유할 정보의 경우에는 사용 후, 반드시 제거를 해야 한다.
+    
+    - ServletRequest는 요청을 처리하는 동안 공유할 정보를 생성한다.
+      그리고 응답을 하면 정보는 사라진다.
+    
+    - JspContext는 ServletRequest에서 JSP를 실행하면
+      생성되고, forward나 include를 통해 JSP를 실행할 경우,
+      Tag Handler를 포함하여 생성한다.
+    
+  - Spring WebMVC 아키텍처
+    - 클라이언트가 요청을 하면, 프론트 컨트롤러인 DisPatcherServlet가 요청을 받고
+      PageController를 실행한다. 요청 받은 PageController는 출력에 필요한 데이터를 가공해야 한다.
+      따라서, DAO 및 Mybatis등을 사용하여 데이트베이스에 접근하고 가공하여 원하는 데이터를 리턴한다.
+      그다음, 리턴받은 PageController는 작업 결과를 DispatcherServlet에게 리턴하고,
+      DispatcherServlet은 ServletRequest 보관소에 작업 결과를 보관한다.
+      그리고 View Component에게 출력을 위임하고, View Component는 ServletRequest 보관소에 저장된
+      데이터를 사용해서 JSON, HTML, XML등 출력물을 생성한다.
+      생성이 완료되면, DispatcherServlet에게 리턴하고 최종적으로 클라이언트가 요청한 출력 결과물을
+      화면에 렌더링한다.
+
+      ```
+      Client -> DispatcherServlet -> PageController -> Service -> DAO -> DB
+      -> Return to PageController in order -> Return to DispatcherServlet with Results of Processed Data
+      -> Store Data in ServletRequest Archive -> Delegate Output Work to View Component
+      -> Use Stored Data in ServletRequest Archive -> Create Output like JSON, XML, HTML etc.
+      -> Return to DispatcherServlet -> Response to Client
+      -> Render on Client's Screen
+      ```
     
 
     
