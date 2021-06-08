@@ -5254,13 +5254,27 @@
       화면에 렌더링한다.
 
       ```
-      Client -> DispatcherServlet -> PageController -> Service -> DAO -> DB
+      Client Request -> DispatcherServlet -> PageController -> Service -> DAO -> DB
       -> Return to PageController in order -> Return to DispatcherServlet with Results of Processed Data
       -> Store Data in ServletRequest Archive -> Delegate Output Work to View Component
       -> Use Stored Data in ServletRequest Archive -> Create Output like JSON, XML, HTML etc.
       -> Return to DispatcherServlet -> Response to Client
-      -> Render on Client's Screen
+      -> Render Requested Data By Client on Client's Screen
       ```
+
+
+# 2021-06-08
+
+  - 리눅스 기초
+    - 하드웨어 -> 커널 -> 쉘 -> 응용 프로그램
+
+    - GNU 프로젝트
+      - 1984년 리처드 스톨먼이 시작한 프로젝트로
+        모두가 공유할 수 있는 소프트웨어를 만드는 것을 목표로 함.
+
+        1985년 스톨먼은 프로그램 복제, 변경 및 사용 제한을 없애고,
+        자유 소프트웨어 재단(Free Software Foundation, FSF)을 설립함.
+
     
 
   
