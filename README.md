@@ -5293,4 +5293,40 @@
       - 여러 개의 디스크를 배열해서 속도와 안정성을 높인다.
     
     - Suspend 기능 - 일종의 절전 모드와 비슷함
+
+
+# 2021-06-10
+  - 리눅스 3일차
+    - 터미널 명령어
+    - Root 암호 변경
+    - `sudo su - root`
+    - 암호 입력
+    - `passwd`
+    - 새 암호 입력 (재입력 포함)
+    
+    - AutomaticLogin을 Root로 변경하기
+      - `gedit /etc/gdm3/custom.conf`
+      - AutomaticLoginEnable = true <- 주석 제거
+      - AutomaticLogin = user1 <- 주석 제거 후, user1 -> root 변경
+      - AllowRoot = true 추가
+
+    - 기타 설정
+      - `gedit /etc/pam.d/gdm-password`
+      - auth required pam 라인 주석 처리
+      - `gedit /etc/pam.d/gdm-autologin`
+      - auto required pam 라인 주석 처리
+      - `gedit /root/.profile`
+      - mesg n || true 라인 주석 처리
+    
+    - 파일명 수정
+      - mv 기존파일명 바꿀파일명
+        Ex) `mv resource.list resource.list.exe`
+      
+    - 다운로드 명령어
+      - wget 웹주소
+        Ex) `wget http://www.naver.com/download/file01.list`
+    
+    - 설정한 내용 적용 명령어
+      - `apt-get update`
+
     
