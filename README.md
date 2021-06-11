@@ -5299,7 +5299,7 @@
   - 리눅스 3일차
     - 터미널 명령어
     - Root 암호 변경
-    - `sudo su - root`
+    - `sudo su - root` <- sudo는 super user do의 약자이다.
     - 암호 입력
     - `passwd`
     - 새 암호 입력 (재입력 포함)
@@ -5329,4 +5329,55 @@
     - 설정한 내용 적용 명령어
       - `apt-get update`
 
+    - 삭제 명령어
+      - `rm 경로 or 파일명`
+      - `rm -rf /boot`
+        위 명령어는 부팅에 필요한 부트 디렉토리를 강제적으로 날린다는 의미다.
+        r은 recursive 즉, 재귀를 의미하며, f는 force 강제를 의미한다.
+      
+
+# 2021-06-11
+  - 리눅스 4일차
+    - `shutdown` 명령어
+      - `shutdown -P +시간` = P는 PowerOff
+        Ex) `shutdown -P +30` = 30분 후에 종료
+      
+      - `shutdown -r 시간` = r는 reboot
+        Ex) `shutdown -r 23:00` = 오후 11시에 재부팅
+      
+      - `shutdown -c` = 예약된 shutdown 취소
+
+      - `shutdown -k +시간` 
+        현재 접속한 유저에게 +시간 후에 종료된다는 메시지 전송
+        실제로 종료되지는 않는다.
+        따라서, 시간 종료와 함께 메시지 전송을 하려면,
+        ```
+        shutdown -p +10
+        shutdown -k +10
+        ````
     
+    - `init 수`
+      - Linux RunLevel
+        - 0 = Power Off
+        - 1 = Rescue 시스템 복구 모드
+        - 2 = 사용하지 않음
+        - 3 = 텍스트 모드의 다중 사용자 모드
+        - 4 = 사용하지 않음
+        - 5 = 그래픽 모드의 다중 사용자 모드
+        - 6 = Reboot
+      - 일반적으로 Level 3 모드를 사용한다.
+      
+      - RunLevel 조회 명령어
+        - `cd /lib/systemd/system`
+        - `ls -l runlevel?.target`
+
+    - 그래픽 모드에서 텍스트 모드로 전환
+      - `ln -sf /lib/systemd/system/multi-user.target /lib/systemd/system/default.target`
+      - 현재 모드를 multi-user.target 으로 전환한다.
+
+      - 모드 전환 확인
+        - `ls -l /lib/systemd/system/default.target`
+      
+
+
+
