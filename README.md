@@ -255,7 +255,7 @@
         - ODBC Driver이 Vendor API를 호출하고, 호출된 Vendor API는
           DBMS와 요청과 응답을 주고 받는다.
 
-    - Vendon API(Native API)
+    - Vendor API(Native API)
       - DBMS API는 C/C++ 로 제작되며, Native API 또는 Vendor API 라고 불린다.
         Native API는 *.dll 나 *.lib를 포함하고 있다.
         
@@ -4361,7 +4361,7 @@
         - 실행 전 Ex
           - 웹브라우저로부터 받은 암호화된 파라미터 값을 Servlet에
             전달하기 전에 암호 해제 한다. 혹은 압축된 데이터를
-            전달하기 전에 압축 ㅐ제한다.
+            전달하기 전에 압축 해제한다.
           - 클라이언트가 Servlet 을 실행할 권한이 있는지 검사한다.
             Ex) 로그인 사용자인지 검사
         
@@ -5075,7 +5075,7 @@
       getBeansOfType() 을 사용하면, 해당 타입의 모든 빈을 조회할 수 있다.
 
     - 부모 타입으로 조회하면, 자식 타입도 함께 조회한다.
-      그래서 최사우이 객체인 Object 타입으로 조회하면,
+      그래서 최상위 객체인 Object 타입으로 조회하면,
       모든 스프링 빈을 조회한다.
     
     - BeanFactory
@@ -5137,7 +5137,7 @@
       values(#{title}, #{content}, #{writer.no})
       ```
       
-      writer.no 가 writer_no 와 일차한다.
+      writer.no 가 writer_no 와 일치한다.
 
 
 # 2021-05-11
@@ -5478,10 +5478,24 @@
       - 네트워크 명령어
         - `ifconfig` = IP Address 확인
         - `ip route` = 게이트웨이 정보 확인
+        - `netstat -rn` = 게이트웨이 정보 확인
         - `systemd-resolve --status ens32` = DNS 서버의 정보 확인
         - 클라이언트의 경우, `ens32`가 아닌 `ens33`으로 해야 한다.
         - `ifdown --all` = 네트워크 장치 정지
         - `ifup --all` = 네트워크 장치 가동
+        - `nm-connection-editor` = 네트워크 설정 변경창 활성화
+          - 자동 or 고정 IP 주소 사용 결정
+          - IP주소, 서브넷 마스크, 게이트웨이 정보 입력
+          - DNS 정보 입력
+          - 네트워크 카드 드라이브 설정
+          - 네트워크 장치(ens32, ens33) 설정
+        - `systemctl start/stop/restart/status networking`
+          - 네트워크 설정 변경 후, 시스템에 적용하는 명령어
+            따라서, `nm-connection-editor`에서 설정 정보를 변경하고,
+            적용시키려면, 위 명령어를 반드시 실행해야 한다.
+        - `nslookup` = DNS주소 확인
+          - `nslookup` 입력하면, > 활성화
+            www.google.com 을 입력하면, google.com에 대한 정보가 출력된다.
       
       - 네트워크 경로
         - 호스트 OS에는 실제로 사용하는 IP와 가상 IP 주소가 존재한다.
@@ -5513,4 +5527,11 @@
           C = 110 (192.0.0 ~ 223.255.255) 2의 22승
           이다.
 
-      
+      - 압축 명령어
+        - xz
+          - `xz 파일명` = 파일명.xz 압축 파일 생성 및 기존 파일 제거
+          - `xz -d 파일명.xz` = 파일명.xz의 압축을 풀어 '파일명' 파일 생성
+            - d는 decompress의 약자이다.
+          - `xz -l 파일명.xz` = 파일명.xz에 포함된 파일 목록과 압축률 등 출력한다.
+          - `xz -k 파일명` = 압축 후, 기존 파일을 삭제하지 않고 유지한다.
+          
