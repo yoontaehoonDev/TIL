@@ -5394,3 +5394,65 @@
       
       - 마지막 행으로 이동
         - `:$`
+
+      - 현재 행 복사 후, 다음 행에 붙여넣기
+        - ESC -> `yy` -> `p`
+
+
+# 2021-06-12
+  - 리눅스 5일차
+    - umount 사용시, 경로 확인 필수
+    - 현재 작업중인 디렉토리에 있거나, 하위 디렉토리에 있다면
+      상위 디렉토리로 이동하고 삭제를 해야 한다.
+    
+    - ISO 파일 생성 명령어
+      - `genisoimage -r -J -o ISO파일명 포함될디렉토리`
+      - `genisoimage -r -J -o boot.iso /boot`
+      - -r -J = 여덟 글자 이상의 파일 이름과 대/소문자 구분해서
+        인식하기 위한 옵션이다.
+      - -o는 출력할 파일을 위한 옵션이다.
+    
+    - 마운트 및 언마운트
+      - `mount /경로`
+        Ex) `mount /media/test` = media 하위 폴더인 test폴더에 마운트를 함
+      
+      - `umount /경로`
+        Ex) `umount /media/test` = 마운트 해제
+      
+    - 기본 명령어
+      - ls
+        - `ls` = 현재 디렉토리의 파일 목록 출력
+        - `ls /test1/test2` = test2 디렉토리의 파일 목록 출력
+        - `ls -a` = 현재 디렉토리의 숨김 파일 포함 출력
+        - `ls -l` = 현재 디렉토리의 파일 목록을 자세히 출력
+          - 여기서 자세히란, 권한, 생성일자 등 정보까지 포함한다.
+        - `ls *.txt` = .txt 확장자 목록 출력
+
+      - `pwd` = 현재 위치의 디렉토리 경로 출력
+
+      - touch
+        - `touch test.txt` = test.txt란 파일이 없으면, 생성하고
+          있으면, 최종 수정 시간을 현재 시간으로 변경한다.
+      
+      - mkdir
+        - `mkdir -p /def/test` = /test 디렉토리를 생성하는데
+          -p는 test의 상위 디렉토리인 /def가 존재하지 않을 때,
+          부모 역할로 지정하고, /def 디렉토리를 먼저 생성한 다음,
+          /test 디렉토리를 그 다음에 생성한다.
+      
+      - rmdir
+        - `rmdir test` = test 디렉토리를 삭제한다.
+      
+      - cp
+        - `cp test.txt test2.txt` = test.txt 파일을 test2.txt로 파일명을 바꾸고 복사
+        - `cp -r test test2` = test 디렉토리를 test2로 이름을 바꾸고 복사
+      
+      - mv
+        - `mv test.txt /a/b` = test.txt를 /a/b 디렉토리로 이동시킨다.
+        - `mv a b c d` = a, b, c 파일을 d 디렉토리로 이동시킨다.
+          - 여기서 유의할 점은 맨 끝에 있는 명이 디렉토리가 된다.
+        - `mv a.txt b.txt` = a.txt 파일명을 b.txt 로 바꾼다.
+
+      - cat
+        - `cat a.txt b.txt` = a와 b를 연결해서 내용을 출력한다.
+        
