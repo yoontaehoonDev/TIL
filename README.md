@@ -5527,11 +5527,82 @@
           C = 110 (192.0.0 ~ 223.255.255) 2의 22승
           이다.
 
-      - 압축 명령어
-        - xz
-          - `xz 파일명` = 파일명.xz 압축 파일 생성 및 기존 파일 제거
-          - `xz -d 파일명.xz` = 파일명.xz의 압축을 풀어 '파일명' 파일 생성
-            - d는 decompress의 약자이다.
-          - `xz -l 파일명.xz` = 파일명.xz에 포함된 파일 목록과 압축률 등 출력한다.
-          - `xz -k 파일명` = 압축 후, 기존 파일을 삭제하지 않고 유지한다.
-          
+
+# 2021-06-13
+  - 리눅스 6일차
+    - 압축 명령어
+      - xz
+        - `xz 파일명` = 파일명.xz 압축 파일 생성 및 기존 파일 제거
+        - `xz -d 파일명.xz` = 파일명.xz의 압축을 풀어 '파일명' 파일 생성
+          - d는 decompress의 약자이다.
+        - `xz -l 파일명.xz` = 파일명.xz에 포함된 파일 목록과 압축률 등 출력한다.
+        - `xz -k 파일명` = 압축 후, 기존 파일을 삭제하지 않고 유지한다.
+
+      - bzip2
+        - `bzip2 파일명` = 파일명.bz2 압축 파일 생성
+        - `bzip2 -d 파일명.bz2 == bunzip2 파일명.bz2`
+          = 파일명.bz2의 압축을 해제하고, 2번째 파일명 파일 생성
+        - `bzip2 -k 파일명` = 압축 후, 기존 파일을 삭제하지 않고 유지한다.
+      
+      - gzip
+        - `gzip 파일명` = 파일명.gz 압축 파일 생성
+        - `gzip -d 파일명.gz == gunzip 파일명.gz` = bzip2와 동일
+
+      - zip
+        - `zip 새파일명.zip 파일명` = 압축 파일 생성 후, 기존 파일 유지
+        - `unzip 파일명.zip` = 파일명.zip 압축 해제하고, 파일명 파일 생성
+
+    - 파일 묶기
+      - a와 b파일을 압축한다면, 하나의 압축 폴더에 압축된다.
+      
+      - tar
+        - c = 새로운 묶음 파일을 만든다.
+        - x = 묶음 파일을 해제한다.
+        - t = 묶음 파일을 해제하기 전에 경로를 보여준다.
+        - C = 지정된 디렉토리에 묶음 파일을 해제한다.
+              지정하지 않으면, 묶음 파일이 존재하는 디렉토리에 해제한다.
+        - f = 묶음 파일명을 지정한다.
+        - v = 파일을 묶거나 해제 과정을 보여준다.
+        - z = tar + gzip
+        - j = tar + bzip2
+
+        - Example
+          - `tar cvf test.tar /etc/fonts/` = fonts 디렉토리에 있는 파일들을
+            test.tar 파일명으로 묶는다.
+          - `tar cvfJ test.tar /etc/fonts/` = 파일들을 묶고, xz로 압축한다.
+          - `tar cvfz test.tar /etc/fonts/` = 파일들을 묶고, gzip으로 압축한다.
+          - `tar cvfj test.tar /etc/fonts/` = 파일들을 묶고, bzip2로 압축한다.
+          - `tar tvf test.tar` = 파일 확인
+          - `tar xvf test.tar` = tar 풀기
+          - `tar Cxvf new test.tar` = new 디렉토리에 tar를 푼다.
+          - `tar xfJ test.tar.xz` = xz 압축 해제 + tar 풀기
+          - `tar xfz test.tar.gz` = gzip 압축 해제 + tar 풀기
+          - `tar xfj test.tar.bz2` = bzip2 압축 해제 + tar 풀기
+
+    - 파일 위치 검색
+      - find
+        - 옵션
+          - -name, -user(소유자), -newer(전, 후), -perm(허가권), -size(크기)
+        - 액션
+          - -print(기본값), -exec(외부 명령 실행)
+          - 외부 명령이란, find 명령어가 아닌, 다른 명령어 즉,
+            `-exec rm {} \;`를 실행할 경우, {} 안에는 앞의 find 명령어
+            구문이 들어가고, 삭제 명령어인 rm을 실행시킨다.
+            그리고 `\;`은 `-exec`의 끝을 의미한다.
+        
+        - `find /etc -name "*.txt"` = etc 디렉토리 하위에 있고, 확장자명이
+          .txt 인 파일 검색
+        - `find /home -user ubuntu` = etc 디렉토리 하위에 있고, 소유자가 
+          ubuntu인 파일 검색
+        - `find ~ -perm 644` = 현재 사용자의 홈 디렉토리 하위에 있고, 허가권이
+          644인 파일 검색
+        - `find /usr/bin -size +10k -size -100k` = /usr/bin 디렉토리 하위에 있고,
+          크기가 10~100KB인 파일 검색
+        - `find ~ -size 0k -exec ls -l {} \;` = 현재 사용자의 홈 디렉토리 하위에
+          있고, 크기가 0인 파일의 목록을 상세히 출력
+        - `find /home -name "*.swp" -exec rm {} \;` = /home 디렉토리 하위에 있고,
+          확장명이 *.swp인 파일 삭제
+      
+      - `whereis 실행파일명`
+      
+      - `locate 파일명`
