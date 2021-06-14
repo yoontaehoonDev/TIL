@@ -5841,4 +5841,52 @@
             실행 및 종료를 한다.
             예를 들면, 웹 서버의 경우, `systemctl start httpd` 명령으로 구동한다.
           
+          - 소켓의 대표적인 예는 텔넷 서버가 있다.
+        
+        - 프로그램 설치 명령어
+          - dpkg와 apt-get가 있는데 최신 버전에서는 apt-get을 사용한다.
+          
+          - dpkg
+            - `dpkg -i 패키지파일명.deb` = 패키지 설치
+            - `dpkg -r 패키지명` = 패키지 삭제
+            - `dpkg -P 패키지명` = 설치된 패키지와 설정 파일 모두 삭제
+            - `dpkg -l 패키지명` = 설치된 패키지의 정보 출력
+          
+          - apt-get
+            - `apt-get install 패키지명` = 패키지 설치
+            - `apt-get -y install 패키지명` = 질문을 건너 뛰고 바로 설치
+            - `apt-get update` = /etc/apt/sources.list 파일의 내용이 수정되면,
+              다운로드할 패키지 목록을 이 명령으로 업데이트 해야 한다.
+            - `apt-get remove 패키지명` = 패키지 삭제
+            - `apt-get purge 패키지명` = 설치된 패키지와 설정 파일 모두 삭제
+            - `apt-get autoremove` = 사용하지 않는 패키지 모두 삭제
+            - `apt-get clean` = 설치할 때 다운로드한 파일과 과거의 파일 삭제
+
+            - 의존성 문제 파악 명령어
+              - `apt-cache show 패키지명` = 패키지 정보 출력
+              - `apt-cache depends 패키지명` = 패키지의 의존성 정보 출력
+              - `apt-cache rdepends 패키지명` = 패키지에 의존하는 타 패키지의 
+                목록 출력
+            
+            - apt-get의 작동 방식
+              - apt-get 명령어와 관련된 설정 파일은 /etc/apt 디렉토리에 있다.
+                명령어를 실행했을 때, 인터넷에서 해당 패키지 파일을 검색하는
+                네트워크 주소가 들어 있는 sources.list 파일이 중요하다.
+              
+              - apt-get install 을 했을 때 동작 순서
+                - 1 `apt-get install 패키지명`
+                - 2 `/etc/apt/sources.list` 파일 열고, URL 주소 확인
+                - 3 `설치와 관련된 패키지 목록 요청`
+                - 4 `설치와 관련된 패키지 목록만 다운로드`
+                - 5 `설치할 패키지명와 관련 패키지명 화면에 출력`
+                - 6 `y를 입력하면 설치에 필요항 패키지 파일 요청`
+                - 7 `설치할 패키지 파일 다운 및 자동 설치`
+                - 여기서 `-y`를 붙이면 2~7번째 과정이 생략된다.
+            
+            - apt-get update시, sources.list 목록
+              - bionic main, universe, multiverse, restricted
+
+        - 파일의 의미
+          - 패키지명_버전명-개정번호_아키텍쳐
+          - `galculator_2.1.4-1_amd64.deb`
           
