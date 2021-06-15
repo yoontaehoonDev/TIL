@@ -5889,4 +5889,36 @@
         - 파일의 의미
           - 패키지명_버전명-개정번호_아키텍쳐
           - `galculator_2.1.4-1_amd64.deb`
-          
+
+
+# 2021-06-15
+  - 리눅스 8일차
+    - 응급 복구와 GRUD 부트로더
+      - Server(b)에서 암호 분실 시, 재설정
+        - 부팅할 때, `ESC`키를 여러 번 누른다.
+        - GNU에 진입하면, Ubuntu가 선택된 상태에서 `E`키 누른다.
+        - linux /boot/vmlinuz의 끝 부분에 `init=/bin/bash` 추가한다.
+        - `F10` or `Ctrl + X` 키를 눌러 리부팅한다.
+        - root로 바로 접속이 되며, 암호를 변경하려면, 아래의 과정을 거쳐야 한다.
+          - `mount -o remount,rw /` = 파티션을 읽기/쓰기(rw) 모드로 마운트시킨다.
+          - `mount`를 입력하면, /dev/sda2 ext4 부분에 `rw`로 변경된 것을
+            확인할 수 있다.
+        
+        - 보안을 위해, root 권한 접근을 막는 방법
+          - root로 접속
+          - `vi /etc/default/grub` 접근
+          - `GRUB_TIMEOUT_STYLE=countdown` = 부팅 시, 대기 시간을 보여준다.
+          - `GRUB_TIMEOUT=20` = 부팅 대기 시간을 20초로 변경
+          - `GRUB-DISTRIBUTOR="Test"` = 초기 화면 글자 변경
+          - 저장 후, `update-grub` 실행
+
+          - GRUB 전용 사용자와 비밀번호 생성
+            - `vi /etc/grub.d/00_header` 접근
+            - 맨 마지막 라인에 아래 내용 추가 후, 저장
+            - `cat << EOF`
+            - `set superusers="grubuser"`
+            - `password grubuser 1234`
+            - `EOF`
+            - 저장 후, `update-grub` 실행
+            
+
