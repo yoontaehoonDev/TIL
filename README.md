@@ -5920,5 +5920,29 @@
             - `password grubuser 1234`
             - `EOF`
             - 저장 후, `update-grub` 실행
+
+
+# 2021-06-16
+  - 리눅스 9일차
+    - 테마 변경
+      - `add-apt-repository universe`
+      - `apt-get -y install gnome-tweak-tool`
+    
+    - 파이어폭스 새 버전 설치
+      - `http://www.mozilla.com/en-US/firefox/all/` 접속
+      - 사양에 맞춰 다운로드
+      - `cd ~/다운로드/`
+      - `tar xfj firefox파일명` = 압축 해제
+      - `mv firefox /usr/local/`
+      - `cd /usr/local/bin`
+      - `ln -s /usr/local/firefox/firefox .` = 현 디렉토리에서 파이어폭스 링크 새로 생성
             
+    - Server(b) GNOME 데스크탑 환경 추가
+      - `vi /etc/apt/sources.list` = 변경
+      - `apt-get update`
+      - `apt-get -y install gnome-session gdm3 gnome-terminal language-pack-ko language-pack-gnome-ko`
+      - 언어팩 한국어로 변경
+      - `apt-get -y install tasksel`
+      - `tasksel install ubuntu-desktop`
+      
 
