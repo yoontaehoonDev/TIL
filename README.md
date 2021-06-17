@@ -5954,4 +5954,22 @@
       - `apt-get update`
       - `apt-get -y install kubuntu-desktop`
       - 기본 화면 관리자 = sddm
-      
+    
+    - 윈도우 설치
+      - Memory 2GB 이상
+      - Processors 4개로 확장
+      - `Virtualize Intel VT-x/EPT or AMD-V/RVI` 체크
+      - 부팅 후, 해상도 `1280x960` 변경
+      - `vi /etc/apt/sources.list` 수정
+      - `apt-get update`
+      - Firefox 접속
+      - `https://www.microsoft.com/ko-kr/evalcenter/evaluate-windows-10-enterprise`
+      - ISO - Enterprise 선택 -> 동의 -> 정보 입력 -> 32bit 다운로드
+      - `ls -l /root/다운로드` 파일 확인
+      - `apt-get -y install virtualbox`
+      - 하드디스크 파일 종류 - VDI
+      - 동적 할당 -> 위치 및 크기 = default
+      - 자세한 정보 클릭 -> 광학 드라이브 클릭
+      - 디스크 이미지 선택 -> ISO 파일 선택
+      - 시작 클릭 -> 사용자 지정 -> 다음 -> 설치
+
