@@ -5946,3 +5946,12 @@
       - `tasksel install ubuntu-desktop`
       
 
+# 2021-06-17
+  - 리눅스 10일차
+    - KDE 데스크탑 설치
+      - `vi /etc/apt/sources.list` 수정
+        - `:%s/xenial/bionic` -> each second lines +`-updates`
+      - `apt-get update`
+      - `apt-get -y install kubuntu-desktop`
+      - 기본 화면 관리자 = sddm
+      
