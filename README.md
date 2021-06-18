@@ -6033,6 +6033,40 @@
           - `adduser --home /mydata/linux2 linux2` = linux2 유저명으로 유저 생성
           - `vi /etc/fatab` 접근
           - `default,usrjquota=aquota.user,jqfmt=vfsv0 0 0` 추가
+          - reboot
+          - `apt-get -y install quota`
+
+          - 쿼터DB 생성
+            - `cd /mydata`
+            - `quotaoff -avug` = 쿼터 종료
+            - `quotacheck -augmn` = 파일 시스템의 쿼터 관련 체크
+            - `rm -f quota.*` = 생성된 쿼터 관련 파일 삭제
+            - `quotacheck -augmn` = 파일 시스템의 쿼터 관련 체크
+            - `touch aqouta.user aquota.group` = 쿼터 관련 파일 생성
+            - `chmod 600 aquota.*` = 보안을 위해 root 외에는 접근 금지
+            - `quotacheck -augmn` = 파일 시스템의 쿼터 관련 체크
+            - `quotaon -avug` = 설정된 쿼터 시작
+
+          - 사용자별 공간 할당
+            - `edquota -u linux1`
+            - soft = 15360, hard 20480 수정 후, 저장
+            - 저장 = `Ctrl + o` -> `Enter`
+            
+            - 테스트
+              - `su - linux1` = linux1으로 로그인
+              - `pwd` = 경로 확인
+              - `cp /boot/vm... test1` = test1 이름으로 복사
+              - `cp /boot/vm... test2` = test2 이름으로 복사
+              - `ls -l` = soft 한도 초과
+              - `cp /boot/vm... test3` = 용량 초과로 인해 사용 불가
+              - `ls -l` = 남은 용량으로 test3 파일이 생성되지만, 사용 불가
+              - `quota` -> grace(만료일) 확인
+              
+              - 로그아웃 후, `repquota /mydata` = 사용자별 현재 사용량 확인
+              - 동일한 사용량 할당 = `edquota -p 기준사용자 대상사용자`
+              - `edquota -p linux1 linux2`
+              
+          
           
 
 
