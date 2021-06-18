@@ -5973,3 +5973,69 @@
       - 디스크 이미지 선택 -> ISO 파일 선택
       - 시작 클릭 -> 사용자 지정 -> 다음 -> 설치
 
+
+# 2021-06-18
+  - 리눅스 11일차
+    - 디스크와 파티션
+      - SATA 장치 / SCSI 장치 구성
+        - 메인보드 내부 - SATA, SCSI
+        - SATA의 시작점 : SATA 번호가 0이라면, SATA 0:0, 0:1 이며,
+          1이라면, SATA 1:0, 1:1 이다.
+          그리고 VMware는 기본적으로 SATA 0:1에 CD/DVD 장치를 장착한다.
+        
+        - 물리 파티션 이름 : /dev/sda, /dev/sdb
+        - 논리 파티션 이름 : /dev/sda1, /dev/sda2, /dev/sdb1, /dev/sdb2
+      
+      - 디스크 추가
+        - `virtual Machine Settings - Add`
+        - SCSI -> Create a new virtual Disk -> Store virtual Disk as a single
+      
+      - 파티션 할당
+        - `fdisk /dev/sdb` = SCSI 0:1 새 디스크 선택
+        - `Command : n` = 새 파티션 분할
+        - `Select : p` = Primary 파티션 선택
+        - `Partition number : 1` = Primary 파티션 1번 선택
+        - `First sector : Enter`, `Last sector : Enter` = 파티션 하나이므로 패스
+        - `Command : p` = 설정 내용 확인
+        - `Command : w` = 설정 내용 저장
+      
+      - 파일시스템 생성
+        - `mkfs.ext4 /dev/sdb1` = ext4 <- 파일시스템, /dev/sdb1 <- 파티션장치
+      
+      - 디렉토리에 마운트
+        - `mkdir /mydata`
+        - `cp /boot/vm... /mydata/file1` = vm... 파일 file1 이름으로 복사
+        - `ls -l /mydata` = 확인
+        - `mount /dev/sdb1 /mydata` = /dev/sdb1 장치를 /mydata 디렉토리에 마운트
+        - `cp /boot/vm... /mydata/file2` = file2 이름으로 재복사
+        - mydata 디렉토리는 /dev/sdb1로 이동됐다.
+        - file1은 여전히 존재하지만, /dev/sda1에 숨겨져 있기 때문에 `lost+found` 표시
+        - `umount /dev/sdb1` = 마운트를 해제한다.
+        - `ls -l /mydata` = lost+found였던 file1은 정상적으로 보여지고,
+          기존에 있던 file2는 마운트를 해제함으로써, /dev/sdb1에 숨겨져 보이지 않는다.
+        
+      - 자동 마운트
+        - `vi /etc/fstab` 접근
+        - `/dev/sdb1 /mydata ext4 defaults 0 0` = 맨 아래 행에 자동 마운트 구문 추가
+        - `reboot` -> `ls -l /mydata` 확인
+      
+      - 공간 할당
+        - 여러 사용자가 동시에 접속하는 리눅스 시스템에서
+          누군가 루트 파일 시스템에 존재하는 큰 파일을 고의로 계속 복사한다면,
+          용량이 부족해질 것이다. 따라서, 이 부분을 방지해야 한다.
+        
+        - 쿼터
+          - 개념 : 각 사용자가 사용할 수 있는 파일의 용량을 제한한다.
+          - 일반 사용자가 사용하는 파일 시스템을 루트가 아닌 별도로 지정한다.
+          - 순서 : `/etc/fstab` 수정 -> 재부팅 -> 쿼터DB 생성 -> 개인별 쿼터 설정
+
+          - `adduser --home /mydata/linux1 linux1` = linux1 유저명으로 유저 생성
+          - `adduser --home /mydata/linux2 linux2` = linux2 유저명으로 유저 생성
+          - `vi /etc/fatab` 접근
+          - `default,usrjquota=aquota.user,jqfmt=vfsv0 0 0` 추가
+          
+
+
+
+        
+
