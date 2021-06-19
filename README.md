@@ -6129,8 +6129,43 @@
             공간 효율성으로는 조금 떨어지지만, 데이터가 손실되지 않는
             단점이 있어 더 좋다.
       
-    
+      - RAID 구축
+        - 디스크 총 9(2GB : 1 / 1GB : 8)개 추가
+        - RAID용 파티션 생성
+          - `fdisk /dev/sdb` = SCSI 0:1 디스크 선택
+          - `Command: n` = 새 파티션 분할
+          - `Select: p` = Primary 파티션 분할
+          - `Partition number: 1` = 파티션 1번 선택
+          - `First sector, Last sector` Enter
+          - `Command: t` = 파일 시스템의 유형 선택
+          - `Hex code: fd` = Linux raid autodetect 유형 번호 선택
+          - `Command: p` = 설정 내용 확인
+          - `Command: w` = 설정 내용 저장
 
+          - 나머지도 반복한 후,
+          - `apt-get -y install mdadm` = 관련 패키지 설치
+        
+      - RAID 레벨 구축
+        - Linear RAID 구축
+          - `fdisk -l /dev/sdb ; fdisk -l /dev/sdc` = 파티션 상태 확인
+          - `mdadm --create /dev/md9 --level=linear --raid-devices=2 /dev/sdb1 /dev/sdc1` = /dev/sdb1과 sdc1을 /dev/md9로 생성
+            - mdadm 명령어 의미
+              - `--create /dev/md9` = md9 장치에 RAID 생성
+              - `--level=linear` = Linear RAID 지정.
+                - RAID 0의 경우, `--level=0` 이다.
+              - `--raid-devices=2 /dev/sdb1 /dev/sdc1` = 디스크 2개 사용, 장치 이름 지정
+              - `mdadm --stop /dev/md9` = 장치 중지
+              - `mdadm --run /dev/md9` = 장치 가동
+              - `mdadm --detail /dev/md9` = 장치 상세 내용 출력
+
+          - `mdadm --detail --scan` = RAID 확인
+          - `mkfs.ext4 /dev/md9` = /dev/md9 파티션 장치의 파일 시스템 생성
+            일련의 포맷하는 과정
+          - `mkdir /raidLinear` = 마운트할 디렉토리 생성
+          - `mount /dev/md9 /raidLinear` = 마운트
+          - `vi /etc/fstab` 접근
+          - `/dev/md9 /raidLinear ext4 defaults 0 0` 추가 후, 저장
+          - `mdadm --detail /dev/md9` = 상세 내용 확인
 
 
         
