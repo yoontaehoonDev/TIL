@@ -6167,6 +6167,38 @@
           - `/dev/md9 /raidLinear ext4 defaults 0 0` 추가 후, 저장
           - `mdadm --detail /dev/md9` = 상세 내용 확인
 
-
+        - RAID 0 구축
+          - `mdadm --create /dev/md0 --level=0 --raid-devices=2 /dev/sdd1 /dev/sde1`
+          - `mdadm --detail --scan`
+          - `mkfs.ext4 /dev/md0`
+          - `mkdir /raid0`
+          - `mount /dev/md0 /raid0`
+          - `vi /etc/fstab`
+          - `/dev/md0 /raid0 ext4 defaults 0 0`
+          - `mdadm --detail /dev/md0`
         
-
+        - RAID 1 구축
+          - `mdadm --create /dev/md1 --level=1 --raid-devices=1 /dev/sdf1 /dev/sdg1`
+          - `mkfs.ext4 /dev/md1`
+          - `mkdir /raid1`
+          - `mount /dev/md1 /raid1`
+          - `vi /etc/fstab`
+          - `/dev/md1 /raid1 ext4 defaults 0 0`
+          - `mdadm --detail /dev/md1`
+        
+        - RAID 5 구축
+          - `mdadm --create /dev/md5 --level=5 --raid-devices=3 /dev/sdh1 /dev/sdi1 /dev/sdj1`
+          - `mkfs.ext4 /dev/md5`
+          - `mkdir /raid5`
+          - `mount /dev/md5 /raid5`
+          - `vi /etc/fstab`
+          - `/dev/md5 /raid5 ext4 defaults 0 0`
+          - `mdadm --detail /dev/md5`
+        
+        - 버그 방지 설정
+          - `mdadm --detail --scan`
+          - ARRAY 내용들을 드래그 후, 복사
+          - `gedit /etc/mdadm/mdadm.conf` 접근
+          - 맨 아래에 붙여넣기 후, `name=server:수` 삭제하고 저장
+          - `update-initramfs -u` = 설정 내용 저장
+          - `reboot` -> `ls -l /dev/md*` 과 `df`로 RAID 장치 확인
