@@ -6290,6 +6290,7 @@
         - 파라미터 변수
           - `vi test.sh`
           
+
           ```
             #!/bin/sh
             echo "first <$0>" = 파일명 출력
@@ -6297,6 +6298,198 @@
             echo "total is <$*>" = 전체 파라미터명 출력
             exit 0
           ```
-          - 
+          - `sh test.sh` 실행
+        
+        - if, case문
+          - 산술 비교 연산자
+            - a `-eq` b = 같으면 참
+            - a `-ne` b = 다르면 참
+            - a `-gt` b = a가 크면 참
+            - a `-ge` b = a가 크거나 같으면 참
+            - a `-lt` b = a가 작으면 참
+            - a `-le` b = a가 작거나 같으면 참
+            - !수식 = 수식이 거짓이면 참
           
-           
+          - 파일 관련 조건
+            - -d 파일명 = 파일이 디렉토리면 참
+            - -e 파일명 = 파일이 존재하면 참
+            - -f 파일명 = 파일이 일반 파일이면 참
+            - -g 파일명 = 파일에 set-group-id가 설정되면 참
+            - -r 파일명 = 파일이 읽기 가능이면 참
+            - -s 파일명 = 파일 크기가 0이 아니면 참
+            - -u 파일명 = 파일에 set-user-id가 설정되면 참
+            - -w 파일명 = 파일이 쓰기 가능이면 참
+            - -x 파일명 = 파일이 실행 가능이면 참
+
+          ```
+          if [ 조건 ]
+          then
+            참일 때 실행
+          else
+            거짓일 때 실행
+          fi <- if문 종료
+          ```
+
+          ```
+          #!/bin/sh
+          if [ 100 -eq 100 ]
+          then
+            echo "같음"
+          else
+            echo "다름"
+          fi
+          exit 0
+          ```
+
+          - 띄어쓰기에 유의하자.
+
+          - case문
+          ```
+          echo "Do you like it? (yes / no) select one"
+          read answer
+          case $answer in
+            yes | y | Y | Yes | YES) = 5가지 안에 하나 포함하면 진행
+              echo "Good"
+              echo "to hear";; = 실행할 구문 마지막엔 ;;를 붙여야 한다.
+            [nN]*) = n과 N으로 시작하는 모든 문자
+              echo "No good";;
+            *) = 그외 나머지 모든 문자
+              echo "Well"
+              exit 1;;
+          esac
+          exit 0
+          ```
+
+        - 반복문
+          - for~in문
+
+
+          ```
+          for 변수 in v1 v2 v3 ...
+          do
+            반복할 문장
+          done
+          ```
+
+          ```
+          sum=0
+          for i in 1 2 3 4 5 = 5번 실행
+          do
+            sum=`expr $sum + $i` = 합 누적
+          done
+          echo $sum
+          exit 0
+          ```
+
+          - while문
+            - 조건식 위치에 1 또는 : 이 오면 무한반복이다.
+          
+
+          ```
+          sum=0
+          i=1
+          while [ $i -le 10 ] = i가 10보다 작거나 같으면 참
+          do
+            sum=`expr $sum + $i`
+            i=`expr $i + 1` = i++
+          done
+          echo "sum="$sum
+          exit 0
+          ```
+
+          - until문
+            - while과 유사하다.
+          
+          - break, continue, exit, return문
+            - break, coninue 그리고 return은 타 프로그래밍 문법과 똑같고,
+              exit는 해당 프로그램을 완전히 종료 `exit 0 or 1`
+
+        - 사용자 정의 함수
+          ```
+          함수명() {
+            내용
+          }
+          함수명
+          ```
+
+          ```
+          function() {
+            echo "함수 진입"
+            return
+          }
+          echo "함수 호출 전"
+          function
+          echo "함수 호출 후"
+          exit 0
+          ```
+
+        - 함수 파라미터 사용
+          ```
+          sum() {
+            echo `expr $1 + $2`
+          }
+          echo "계산 실행"
+          sum 5 5
+          exit 0
+          ```
+        
+        - 문자열을 명령문으로 인식
+          ```
+          str="ls -l eval.sh"
+          echo $str
+          eval $str
+          exit 0
+          ```
+
+        - 전역 변수 사용
+
+          - test1.sh
+
+          ```
+          echo $var1
+          echo $var2
+          exit 0
+          ```
+
+          - test2.sh
+          ```
+          var1="inner"
+          export var2="outer"
+          sh test1.sh
+          exit 0
+          ```
+
+          test1.sh를 실행하는데, var1은 전역 변수 선언을 하지 않았기 때문에
+          test1의 var2만 출력된다.
+          따라서, 결과는 `빈줄 outer`
+          
+        - printf 사용
+          ```
+          var1=200
+          var2="testing"
+          printf "%d \n \t %s \n" $var1 " $var2 "
+          ```
+
+          $var 사이에 공백이 있으므로, ""로 묶어야 오류가 발생하지 않는다.
+
+        - set, $(명령어)
+          - 리눅스 명령어를 결과로 사용이 가능하다.
+          
+
+          ```
+          echo "Today is $(date)"
+          set $(date)
+          echo "See $5"
+          exit 0
+          ```
+          
+          $(date) 형식을 바로 출력하고,
+          set을 사용하면, 명령어 결과의 파라미터화를 시켜서 저장한다.
+          그리고 그 파라미터를 `$숫자` 로 사용이 가능하다.
+
+
+
+
+
+
+
