@@ -6280,7 +6280,7 @@
             그리고 수식에 괄호를 사용하려면, 백슬래쉬를 넣어야 한다.
             +, -, /와 다르게 *는 예외적으로 \를 붙여야 한다.
           
-          - ```
+          ```
           num1=1000
           num2=`expr $num1 + 200`
           num3=`expr \( $num2 + $num1 \) / 20 \* 30`
@@ -6288,10 +6288,15 @@
           ``` 
 
         - 파라미터 변수
-          - ```
-          #!/bin/sh
-          echo "first <$0>" = 파일명 출력
-          echo "first is <$1>, second is <$2>" = 1, 2번째 파라미터명 출력
-          echo "total is <$*>" = 전체 파라미터명 출력
-          exit 0
+          - `vi test.sh`
+          
           ```
+            #!/bin/sh
+            echo "first <$0>" = 파일명 출력
+            echo "first is <$1>, second is <$2>" = 1, 2번째 파라미터명 출력
+            echo "total is <$*>" = 전체 파라미터명 출력
+            exit 0
+          ```
+          - 
+          
+           
