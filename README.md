@@ -6488,6 +6488,44 @@
           그리고 그 파라미터를 `$숫자` 로 사용이 가능하다.
 
 
+# 2021-06-22
+  - 스프링 빈 조회
+    - getBeanDefinitionNames() = 스프링에 등록된 모든 빈 이름 조회
+    - getBean() = 빈 객체 조회
+    - BeanDefinition.ROLE_APPLICATION = 직접 등록한 애플리케이션 빈
+    - BeanDefinition.ROLE_INFRASTRUCTURE = 스프링 내부에서 사용하는 빈
+    ```
+    String[] beans = ac.getBeanDifinitionNames();
+    for(String bean : beans) {
+      
+      BeanDifinition beanDifinition = ac.getBeanDefinition(bean);
+      // bean 문자열을 getBeanDefinition에 넣고,
+      // getBeanDefinition은 beanDifinition에 넣는다.
+
+      if(beanDifinition.getRole() == BeanDefinition.ROLE_APPLICATION) {
+        Object bn = ac.getBean(bean);
+        System.out.printf("bean name : %s\n", bean); // 직접 등록한 빈 이름 출력
+        System.out.printf("bean object : %s\n", bn); // 직접 등록한 빈 객체 출력
+      }
+    }
+    ```
+
+  - 싱글톤 방식
+    - 객체를 생성하고, 여러 사용자가 공유하면서 사용한다.
+      즉, 단일객체이다.
+      
+    - 설계를 할 때, 무상태(Stateless)로 설계해야 한다.
+      왜냐하면, 결제의 예로 들면 A가 10000원을 결제했는데
+      바로 그다음 B가 20000원을 결제하고 A가 결제 비용을
+      확인할 때는 10000원이 아닌, 20000원이 된다.
+      따라서, 받는 즉시 값을 리턴해야 한다.
+    
+    - `@Configuration` 주석을 사용하지 않으면, 싱글톤을 보장하지 않는다.
+  
+  - CGLib = Code Generator Library
+    - 자바 클래스의 프록시를 생성해준다.
+
+
 
 
 
