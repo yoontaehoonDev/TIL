@@ -6514,7 +6514,7 @@
     - 객체를 생성하고, 여러 사용자가 공유하면서 사용한다.
       즉, 단일객체이다.
       
-    - 설계를 할 때, 무상태(Stateless)로 설계해야 한다.
+    - 설계를 할 때, 무상태(Stateless)로 설계해야 한다. 
       왜냐하면, 결제의 예로 들면 A가 10000원을 결제했는데
       바로 그다음 B가 20000원을 결제하고 A가 결제 비용을
       확인할 때는 10000원이 아닌, 20000원이 된다.
@@ -6526,8 +6526,42 @@
     - 자바 클래스의 프록시를 생성해준다.
 
 
+# 2021-06-23
+  - 탐색 위치 및 기본 스캔 대상
+    - 컴포넌트 스캔 기본 대상
+      - `@Component` = 컴포넌트 스캔에서 사용
+      - `@Controller` = 스프링 MVC 컨트롤러에서 사용
+      - `@Service` = 스프링 비지니스 로직에서 사용
+      - `@Repository` = 스프링 데이터 접근 계층에서 사용
+      - `@Configuration` = 스프링 설정 정보에서 사용
+    
+    - 애노테이션은 상속관계가 없다.
 
+  - 필터
+    - includeFilters = 컴포넌트 스캔 대상을 추가로 지정
+    - excludeFilters = 컴포넌트 스캔에서 제외할 대상을 지정
 
+    - FilterType 옵션
+      - ANNOTATION = 기본값, 애노테이션을 인식해서 동작한다.
+        - Ex) `org.test.?Annotation`
+      
+      - ASSIGNABLE_TYPE = 지정한 타입과 자식 타입을 인식해서 동작한다.
+        - Ex) `org.test.?Class`
+
+      - ASPECTJ = AspectJ 패턴을 사용한다.
+        - Ex) `org.test...*Service+`
+
+      - REGEX = 정규 표현식을 사용한다.
+        - Ex) `org\.test\.Default.*`
+      
+      - CUSTOM = TypeFilter 이라는 인터페이스를 구현해서 처리한다.
+        - Ex) `org.test.TypeFilter`
+      
+  - 중복 등록과 충돌
+    - 자동 빈 등록끼리 충돌날 때는 ConflictingBeanDefinitionException 발생
+      반면에, 수동 빈 등록과 자동 빈 등록에서 중복된 이름이 있으면,
+      수동 빈 등록이 우선권을 가지고, 자동 빈 등록을 오버라이딩 한다.
+  
 
 
 
