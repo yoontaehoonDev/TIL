@@ -6562,6 +6562,121 @@
       반면에, 수동 빈 등록과 자동 빈 등록에서 중복된 이름이 있으면,
       수동 빈 등록이 우선권을 가지고, 자동 빈 등록을 오버라이딩 한다.
   
+  - 의존관계 자동 주입
+    - 생성자 주입
+      - 불변 의존 관계에 사용된다.
+      - 생성자를 단 1번만 호출한다. (싱글톤 패턴)
+      - 생성자가 1개만 있으면, `@Autowired`를 생략해도 된다.
+      - final 키워드를 사용할 수 있다.
+        따라서, this를 명시하지 않으면 컴파일 오류가 발생한다.
+      ```
+      @Autowired
+      public Test(Member member) {
+        this.member = member;
+      }
+      ```
+    
+    - Setter 주입
+      - 변경 가능한 의존 관계에 사용된다.
+      - setter 메소드를 사용하고, `@Autowired`를 붙여야 한다.
+      ```
+      @Autowired
+      public setMember(Member member) {
+        this.member = member;
+      }
+      ```
+
+    - 필드 주입
+      - 객체에 바로 `@Autowired`를 붙인다.
+      ```
+      @Autowired private Member member;
+      ```
+
+    - 일반 메소드 주입
+      - 생성자가 아닌, 일반 메소드에 주입을 한다.
+      - 일반적으로 사용하지 않는다.
+      ```
+      @Autowired
+      public void test(Member member) {
+        this.member = member;
+      }
+      ```
+  
+  - 옵션 처리
+    - `@Autowired`의 required의 기본값은 true이다.
+      따라서, 자동 주입 대상이 없으면 오류가 발생한다.
+      오류를 옵션으로 처리하는 방법이 존재한다.
+
+      - `1.` required의 값을 false로 명시한다.
+        그러면 자동 주입 대상이 없을 때, 호출을 하지 않는다.
+      
+      - `2.` `@Nullable`을 파라미터 앞에 선언한다.
+        그래서 자동 주입 대상이 없을 때, null을 넣는다.
+
+      - `3.` `Optional<객체명>` 을 파라미터 앞에 선언한다.
+        자동 주입 대상이 없을 때, Optional.empty을 넣는다. 
+
+
+# 2021-06-24
+  - 생성자 주입
+    - DI Framework는 생성자 주입을 권장한다.
+    - 불변이므로, 앱 시작부터 끝 시점까지 의존 관계가 변경되지 않는다.
+    - 싱글톤이 적용되어, 단 한 번만 호출한다. 따라서 효율적이다.
+
+  - 롬복
+    - 플러그인 추가 후, Annotation Process 탭에서 Enable 체크
+    - `@RequiredArgsConstructor` = final 키워드가 붙은 객체를 생성자에 포함시킨다.
+    ```
+    @RequiredArgsConstructor
+    public class Test {
+      private final Member member;
+      private final Board board;
+
+      아래 생성자 부분을 @RequiredArgsConstructor 애노테이션을
+      추가해서 생성해준다.
+      <!-- 
+      public Test(Member member, Board board) {
+        this.member = member;
+        this.board = board;
+      } 
+      -->
+    }
+    ```
+  
+  - 다수 빈 조회
+    - `1.` 타입 매칭을 한다.
+    - `2.` 타입 매칭 결과 2개 이상일 때는, 필드명과 파라미터명으로 빈 이름을 매칭한다.
+
+    - `@Qualifier` 사용
+      - 파라미터 앞에 삽입하여 사용하면, 우선적으로
+        `@Qualifier` 끼리 매칭을 하고, 없으면, 빈 이름으로 매칭을 한다.
+
+    - `@Primary` 사용
+      - 우선 순위를 지정한다.
+      - `@Primary`가 붙은 클래스를 우선 순위로 해서 매칭을 한다.
+
+    - Qulifier가 Primary 보다 우선 순위가 더 높다.
+
+  - 애노테이션 생성
+  ```
+  @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
+  @Retention(RetentionPolicy.RUNTIME)
+  @Inherited
+  @Documented
+  @Qualifier("test")
+  public @interface Test {} 
+
+  =============================================
+
+  @Component
+  @Test
+  @RequiredArgsConstructor
+  public class Test2 {
+    private final Member member;
+    private final Board board;
+
+  }
+  ```
 
 
 
