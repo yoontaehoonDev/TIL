@@ -6743,4 +6743,39 @@
       - `Logger.getClass()`를 통해, CGLIB가 개입됬다는 걸 알 수 있다.
         따라서, 스프링 컨테이너에는 가짜 프록시 객체를 등록하고,
         프록시 객체를 통해, 진짜 Request Scope의 메소드를 호출한다.
-        
+  
+  - 쓰레드풀의 적정 숫자
+    - 애플리케이션 로직 복잡도, CPU, 메모리, IO 리소스 상황에 따라 다르기 때문에
+      지정하기가 쉽지 않다.
+      그래서 성능 테스트를 함으로써, 최적의 해를 구해야 한다.
+
+
+# 2021-06-27
+  - HTTP API
+    - 주로 JSON 데이터를 주고 받으며, UI는 클라이언트가 처리한다.
+    - 서버 to 서버 = 주문 서버에서 결제 서버로 넘어갈 때
+    - 클라이언트 to 서버 = 클라이언트가 서버에 접속해서 무언가 할 때
+
+  - 정적 리소스, HTML 페이지, HTTP API 처리
+
+  - Web Servlet - Spring MVC
+  - Web Reactive - Spring WebFlux
+    - 비동기 none 블로킹 처리
+    - 최소 쓰레드로 최대 성능 = 쓰레드 컨텍스트 스위칭 비용 효율화
+    - 함수형 코드로 개발 = 동시처리 효율화
+  
+  - Servlet으로 헤더 정보 조회
+    - `request.getHeaderNames().asIterator().forEachRemaining(headName -> System.out.println(headerName + ": " + headerName));`
+  
+  - HTTP 요청 데이터 3가지 방법
+    - GET - 쿼리 파라미터
+      - `/url?K=v&k=v`
+      - 메시지 바디가 없다.
+    
+    - POST - HTML Form
+      - `content-type: application/x-www-form-urlencoded`
+      - 메시지 바디에 쿼리 파라미터 형식으로 전달한다.
+    
+    - HTTP message body - REST API
+      - JSON, XML 형식등을 사용한다.
+      
