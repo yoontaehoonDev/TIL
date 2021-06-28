@@ -6614,7 +6614,7 @@
         그래서 자동 주입 대상이 없을 때, null을 넣는다.
 
       - `3.` `Optional<객체명>` 을 파라미터 앞에 선언한다.
-        자동 주입 대상이 없을 때, Optional.empty을 넣는다. 
+        자동 주입 대상이 없을 때, Optional.empty를 넣는다. 
 
 
 # 2021-06-24
@@ -6632,8 +6632,7 @@
       private final Member member;
       private final Board board;
 
-      아래 생성자 부분을 @RequiredArgsConstructor 애노테이션을
-      추가해서 생성해준다.
+      아래 생성자 부분을 @RequiredArgsConstructor 애노테이션이 대신 생성한다.
       <!-- 
       public Test(Member member, Board board) {
         this.member = member;
@@ -6778,4 +6777,26 @@
     
     - HTTP message body - REST API
       - JSON, XML 형식등을 사용한다.
+
+
+# 2021-06-28
+  - 복수 파라미터에서 조회 방법
+    - `request.getParameter("QueryName");` 은 복수 파라미터가 오더라도,
+      가장 맨 앞의 파라미터를 조회한다.
+      그래서 복수 파라미터를 전부 조회하려면,
+      `request.getParameterValues("QueryName");` 를 문자열 배열로 받아서
+      반복문으로 출력하면 된다.
+      ```
+      ./test?name=a&name=b&namec
       
+      String[] names = request.getParameterValues("name");
+      for(name : names) {
+        System.out.println("name: " + name);
+      }
+      ```
+  
+  - Servlet에서 JSON 문자로 변환하는 방법
+    - Content-Type을 application/json 으로 지정한다.
+    - Jackson 라이브러리가 제공하는 ObjectMapper 클래스를 사용한다.
+    - DTO setter 값 넣고, `objectMapper.writerValueAsString(객체명);`을
+      문자열에 넣은 다음, `response.getWriter().write(문자열변수명)`을 선언하면 된다.
