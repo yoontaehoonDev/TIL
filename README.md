@@ -6853,3 +6853,34 @@
     ```
 
 
+# 2021-06-30
+  - Stream
+    - 병렬 처리가 가능하다.
+    - 스트림으로 처리하는 데이터는 단 한 번만 한다.
+
+    - 스트림 파이프라인
+      - 구성
+        - 0 또는 다수의 중개 오퍼레이션과 하나의 종료 오퍼레이션을 가진다.
+        - 중개 오퍼레이션은 Stream을 리턴하지만,
+          종료 오퍼레이션은 Stream을 리턴하지 않는다.
+      
+    - 코드가 간결해지는 장점이 있다.
+    ```
+    long count = 0;
+    List<String> list = Arrays.asList("asdf", "sdfg", "qwer", "gfds", "awwz");
+    for(String element : list) {
+      if(element.startsWith("a")) {
+        count++;
+      }
+    }
+    System.out.printf("단순 List를 이용한 개수 : %d\n", count);
+
+    count = 0;
+    count = list.stream().filter(name -> name.startsWith("a")).count();
+    System.out.printf("Stream을 이용한 개수 : %d\n", count);
+    ```
+    
+    - a로 시작하는 문자열을 찾아서 개수를 세는 코드이다.
+      for문과 if문 조합으로 하면 코드가 최소 3줄은 된다.
+      하지만, Stream을 사용하면, 단 한 줄로 개수를 셀 수 있다.
+      따라서, Stream은 코드를 간결하게 해주는 장점이 있다.
