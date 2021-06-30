@@ -6884,3 +6884,44 @@
       for문과 if문 조합으로 하면 코드가 최소 3줄은 된다.
       하지만, Stream을 사용하면, 단 한 줄로 개수를 셀 수 있다.
       따라서, Stream은 코드를 간결하게 해주는 장점이 있다.
+
+
+# 2021-07-01
+  - Stream filter에서 boolean 필드를 처리할 때 여러 방법
+    ```
+    첫 번째
+    test.stream().filter(n -> !n.isClosed).forEach(n -> System.out.println(n.getId()));
+
+    두 번째
+    test.stream().filter(Predicate.not(Test::isClosed)).forEach(n -> System.out.println(n.getId()));
+    ```
+    - 첫 번째 코드는 인자값을 받아서 처리하지만,
+      두 번째 코드는 Predicate.not을 사용하여 처리한다.
+
+    - 다중 리스트 데이터들을 한꺼번에 출력하기
+    ```
+    List<List<Data>> lists = new ArrayList<>();
+    lists.add(firstList);
+    lists.add(secondList);
+    
+    lists.stream().flatMap(list -> list.stream().map(n -> n.getId())).forEach(System.out::println);
+
+    3개 이상의 리스트일 때는
+    List<List<Data>> first = new ArrayList<>();
+    first.add(firstList);
+    first.add(secondList);
+    first.add(thirdList);
+
+    List<List<Data>> second = new ArrayList<>();
+    second.add(forthList);
+    second.add(fifthList);
+
+    이중 리스트에서 데이터가 우선 삽입되어야 한다.
+    List<List<List<Data>>> multipleList = new ArrayList<>();
+    multipleList.add(first);
+    multipleList.add(second);
+    
+    multipleList.stream().flatMap(first -> first.stream().flatMap(second -> second.stream().map(e -> e.getId()))).forEach(System.out::println);
+    ```
+    - flatMap은 파이프라인에서 리스트들을 놓고, 순서대로 데이터를 추가한다.
+    그리고 forEach로 출력을 하게 되면, Queue 방식으로 출력된다.
