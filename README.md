@@ -6904,7 +6904,12 @@
     lists.add(firstList);
     lists.add(secondList);
     
+    ^Before
     lists.stream().flatMap(list -> list.stream().map(n -> n.getId())).forEach(System.out::println);
+    
+    ^After
+    lists.stream().flatMap(Collection::stream).forEach(n -> System.out.println(n.getId));
+
 
     3개 이상의 리스트일 때는
     List<List<Data>> first = new ArrayList<>();
@@ -6921,7 +6926,12 @@
     multipleList.add(first);
     multipleList.add(second);
     
+    ^Before
     multipleList.stream().flatMap(first -> first.stream().flatMap(second -> second.stream().map(e -> e.getId()))).forEach(System.out::println);
+    
+    ^After
+    multipleList.stream().flatMap(lists -> lists.stream()).flatMap(Collection::stream).forEach(n -> System.out.println(n.getId()));
+    
     ```
     - flatMap은 파이프라인에서 리스트들을 놓고, 순서대로 데이터를 추가한다.
     그리고 forEach로 출력을 하게 되면, Queue 방식으로 출력된다.
