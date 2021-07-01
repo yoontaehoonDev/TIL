@@ -6935,3 +6935,22 @@
     ```
     - flatMap은 파이프라인에서 리스트들을 놓고, 순서대로 데이터를 추가한다.
     그리고 forEach로 출력을 하게 되면, Queue 방식으로 출력된다.
+
+    - 무제한 스트림
+      Stream.iterate(시드, 람다식).forEach(System.out::println);
+      위 스트림은 시드 즉, 정해진 수부터 람다식 Ex) n -> n + 1 이라고 가정할 때,
+      forEach를 사용하여 무한루프를 실행한다.
+      따라서, `Stream.iterate(1, n -> n + 1)`은 `while(true)` 와 같이 동작한다.
+      그래서 중간에 조건을 주고 멈출 수 있는 기능도 체이닝할 수 있다.
+      `Stream.iterate(1, n -> n + 1).limit(10).forEach(System.out::println)`
+      limit 메소드 안의 정수 10까지 반복한다.
+
+    - `anyMatch()`
+      - boolean 타입을 리턴하기 때문에, 찾고자 하는 값이 있을 경우 사용한다.
+      ```
+      boolean result = test.stream().anyMatch(e -> e.getName().contains("test"));
+      ```
+      - name 필드에서 test를 포함한 문자열이 존재한다면, true를 리턴하고,
+        없다면 false를 리턴한다. 
+
+
