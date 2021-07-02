@@ -6887,6 +6887,8 @@
 
 
 # 2021-07-01
+  - 중개형 오퍼레이션은 코드를 작성하더라도, 생성되지 않고,
+    터미널 오퍼레이션을 작성해야 생성된다.
   - Stream filter에서 boolean 필드를 처리할 때 여러 방법
     ```
     첫 번째
@@ -6954,3 +6956,70 @@
         없다면 false를 리턴한다. 
 
 
+# 2021-07-02
+  - 오퍼레이터 순서 유의
+    - 리스트에서 특정 문자열이 들어간 데이터만 모아서 출력을 할 때, 
+    filter를 거치고, map에 저장한 다음, collect를 사용하면, 리스트 형식으로 데이터를
+    리턴 받을 수 있다.
+    ```
+    List<String> list = test.stream().filter(n -> n.getTitle().contains("test")).map(Test::getName).collect(Collectors.toList());
+    ```
+    - 만일, 위 코드에서 map을 생략한다면, 여전히 리스트로 받을 수 있지만,
+    타입을 Test 클래스로 받며, 출력할 때 원하는 값으로 출력되는 게 아닌, 객체명이 출력된다.
+    따라서, map을 사용해야, 필터링된 문자열이 포함된 값만 추출할 수 있다.
+
+    - 반대로, map을 filter 보다 앞에 선언해서 사용한다면, 타입이 바뀌므로 아래 코드로 이루어진다.
+    ```
+    List<String> list = test.stream().map(Test::getName).filter(n -> n.contains("test")).collect(Collectors.toList());
+    ```
+    - map에서 이미 타입이 정해졌기 때문에, filter에서는 `n.getName()`을 명시할 필요가 없다. 따라서, `n.getName().contains("test"); -> n.contains("test");` 가 된다.
+  
+  - Optional API
+    - Optional은 컨테이너 안에 단일값 한 개가 있거나 없을 수도 있다.
+      - 리턴값으로만 사용하기를 권장하며, null을 리턴하면 안 된다.
+    ```
+    메소드 체이닝으로 출력
+    test.stream().filter(n -> n.getName().startsWith("Test")).findFirst().ifPresent(n -> System.out.println(n.getName));
+    
+    findFirst() 메소드는 스트림에서 첫 번째 값을 꺼내오는 것이다.
+    따라서, filter 조건에 맞는 데이터들이 여러 개라고 가정한다면,
+    첫 번째로 찾은 값을 추출한다.
+
+    ifPresent() 메소드는 값이 없을 경우, null을 출력하는 게 아니라,
+    아예 빈값을 출력한다.
+    
+    메소드 레퍼런스 사용
+    test.stream().filter(n -> n.getName().startsWith("Test")).findFirst().map(Test::getName).ifPresent(System.out::println);
+    ```
+
+    - `orElse()`는 값이 존재하면 가져오고, 없다면 리턴한다. 
+    ```
+    Optional<Test> optional = test.stream().filter(n -> n.getTitle().startsWith("Test")).findFirst();
+
+    Test test = optional.orElse(new Test(1, "Testing"));
+    System.out.println(test.getName);
+
+    Test로 시작하는 문자열이 있다면, 그 인스턴스의 name 필드값을 출력하지만,
+    없다면, 새로 인스턴스를 생성하고, 생성된 name 필드값을 출력한다.
+    ```
+    
+    - `orElseGet()`은 값이 존재하면 가져오고, 없으면 Supplier 실행
+    ```
+    Optional<Test> optional = test.stream().filter(n -> n.getTitle().startsWith("Test")).findFirst();
+
+    Test test = optional.orElse(() -> new Test(1, "Testing"));
+    System.out.println(test.getName);
+    
+    orElse() 와 달리, 람다식으로 처리한다.
+    ```
+
+    - `orElseThrow()`는 값이 존재하지 않으면, 에러 처리를 한다.
+    ```
+    Test test = optional.orElseThrow(() -> {
+      return new IllegalArgumentException;
+    });
+
+    메소드 레퍼런스 사용
+    Test test = optional.orElseThrow(IllegalArgumentException::new);
+    ```
+    
