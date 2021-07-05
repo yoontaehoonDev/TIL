@@ -7044,4 +7044,40 @@
     - View 렌더링 = 화면에 렌더링.
 
   
+# 2021-07-05
+  - `@Controller`는 클래스의 빈을 자동 생성해주기 때문에, 코드가 더 줄어든다. 반면에, `@RequestMapping`을 사용할 경우에는 `@Bean`을 따로 등록해야 하기 때문에, 효율적인 측면에서는 `@Controller`를 사용하는 것이 낫다.
+
+  - 메소드에 타입을 제한할 수 있다.
+  ```
+   @RequestMapping("/경로", method = RequestMethod=GET)
+   GET만 받을 수 있고, POST로 접근할 경우 에러를 발생시킨다.
+   그리고 아래 코드로 더 간결하게 작성할 수 있다.
+   @GetMapping
+  ```
+
+  - 매핑 정보
+    - `@Controller`는 반환 타입이 String일 경우, 리턴값을 View 이름으로 인식한다.
+    그래서 View를 찾아서 렌더링하는 역할을 한다.
+    - `@RestController`는 리턴값이 View 이름을 찾지 않고, HTTP 메시지 바디에 입력한다.
+    - `@ResponseBody`는 View 조회를 무시하고, HTTP 메시지 바디에 입력한다.
+
+
+    - `@Controller`를 사용하면서, `@Restcontroller` 효과를 보려면,
+    메소드에 `@ResponseBody`를 붙이면 된다.
+
+  
+  - `@PathVariable` = 경로 변수
+  ```
+  @DeleteMapping("/member/{userId})
+  public void delete(@PathVariable("userId") String id) {
+    memberRepository.delete(id);
+  }
+
+  다중 매핑
+  @GetMapping("/member/{userId}/test/{userNick})
+  public String info(@PathVariable String userId, @PathVariable String userNick) {
+    return "OK";
+  }
+  ```
+
   
