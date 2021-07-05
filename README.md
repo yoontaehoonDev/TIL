@@ -3155,7 +3155,7 @@
       - @GetMapping 사용 예2
       ```
       @GetMapping("test-mvc")
-      public String testMvc(@RequestParan("code") String code, Model model) {
+      public String testMvc(@RequestParam("code") String code, Model model) {
         model.addAttribute("code", code);
 
         return "test-template";
@@ -3186,52 +3186,8 @@
           - return 값은 "test name" 이 된다.
           - 템플릿 엔진과의 차이는 View가 없다.
             그래서 문자가 그대로 전달된다.
-          
-        - @ResponseBody 순서
-          - 웹 브라우저에서 URL로 내정 서버에 접속을 요청한다.
-            요청 받은 서버는 Spring Container 에서 Controller를 호출하고
-            @ResponseBody가 있으면, viewResolver 대신에
-            HttpMessageConverter가 동작한다.
+        
             
-            여기서 리턴값이 단순 문자열이면,
-            StringConverter가 동작하고
-            객체라면, JsonConverter가 동작한다.
-            그래서 동작 방식을 통해 서버에 응답하고
-            응답 받은 서버는 웹 브라우저에 전달된 값을 렌더링한다.
-
-            ```
-            return "test" <- 단순 문자열
-            StringConverter 동작 시,
-            test만 출력한다.
-            ```
-
-            ```
-            Test 클래스가 있다고 가정.
-
-            @GetMapping("test-api")
-            @ResponseBody
-            public Test helloApi(@RequestParam("name") String name, @RequestParam("number") int number) {
-              Test test = new Test();
-              test.setName(name);
-              test.setNumber(number);
-
-              return test;
-            }
-            Test test = new Test();
-            test.setNumber(number);
-            test.setName(name);
-            return test <- 객체
-            JsonConverter 동작 시,
-            {
-              "number": 50,
-              "name": "test"
-            }
-            가 출력된다.
-            
-            number와 name 값은 url에서 설정
-            ```
-            
-
 # 2021-04-20
   - 세션
     - 로그인 중인 기간 동안, 사용하는 객체를 가리킨다.
@@ -7080,4 +7036,85 @@
   }
   ```
 
+  - `@RequestParam(required = true)` = 반드시 값이 있어야 하며, 없으면 오류 발생
   
+  - `@Data` = @Getter, @Setter, @ToString, @EqualsAndHashCode,@RequiredArgsConstructor를 자동 생성해준다.
+
+  - `@ModelAttribute 클래스명 파라미터명` 실행 순서
+    - `1.` 객체를 생성한다.
+    - `2.` 요청 파라미터명으로 객체의 Property를 찾는다.
+    예를 들면, 요청 파라미터명이 name이라면, setName() 메소드를 호출해서
+    존재하면, 값을 넣는다.
+  
+
+# 2021-07-06
+  - HttpEntity<> = 메시지 컨버터 기능을 제공하며, HTTP 메시지 바디를 읽어서 문자나 객체로 변환시켜서 전달해준다. 그리고 변환 과정에서 HttpMessageConverter 기능을 사용한다.
+
+  - `@RequestBody`는 넘어오는 파라미터값을 바로 메시지 바디에 입력하기 때문에, 전보다 더 편리하다.
+  ```
+  ^Before
+  
+  @PostMapping("/request/test)
+  public HttpEntity<String> test(HttpEntity<String> httpEntity) throws IOException {
+    String body = httpEntity.getBody();
+
+    return new HttpEntity<>("OK");
+  }
+
+  ^After
+
+  @ResponseBody
+  @PostMapping("/request/test)
+  public String test(@RequestBody String body) throws IOException {
+    if(body != null || body.length < 0) {
+      return "OK";
+    }
+    return "Fail";
+  }
+  ```
+  - `@RequestBody`를 사용하면, HTTP 메시지 바디 정보를 조회할 수 있다.
+  헤더 정보가 필요할 경우에는 `HttpEntity` or `@RequestHeader`를 사용하면 된다.
+  
+  - @ResponseBody 순서
+    - 웹 브라우저에서 URL로 내장 서버에 접속을 요청한다.
+      요청 받은 서버는 Spring Container 에서 Controller를 호출하고
+      @ResponseBody가 있으면, viewResolver 대신에
+      HttpMessageConverter가 동작한다.
+      
+      여기서 리턴값이 단순 문자열이면,
+      StringConverter가 동작하고
+      객체라면, JsonConverter가 동작한다.
+      그래서 동작 방식을 통해 서버에 응답하고
+      응답 받은 서버는 웹 브라우저에 전달된 값을 렌더링한다.
+
+      ```
+      return "test" <- 단순 문자열
+      StringConverter 동작 시,
+      test만 출력한다.
+      ```
+
+      ```
+      Test 클래스가 있다고 가정.
+
+      @GetMapping("test-api")
+      @ResponseBody
+      public Test helloApi(@RequestParam("name") String name, @RequestParam("number") int number) {
+        Test test = new Test();
+        test.setName(name);
+        test.setNumber(number);
+
+        return test;
+      }
+      Test test = new Test();
+      test.setNumber(number);
+      test.setName(name);
+      return test <- 객체
+      JsonConverter 동작 시,
+      {
+        "number": 50,
+        "name": "test"
+      }
+      가 출력된다.
+      
+      number와 name 값은 url에서 설정
+      ```
