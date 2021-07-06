@@ -7105,10 +7105,12 @@
 
         return test;
       }
+
       Test test = new Test();
       test.setNumber(number);
       test.setName(name);
-      return test <- 객체
+      return test; <- 객체
+
       JsonConverter 동작 시,
       {
         "number": 50,
@@ -7118,3 +7120,40 @@
       
       number와 name 값은 url에서 설정
       ```
+  
+  - HTTP 요청 데이터 처리
+    - `@RequestBody`, HttpEntity 파라미터 사용 -> 메시지를 읽기 위해 canRead() 호출 -> 대상 클래스 지원 여부 확인 -> Content-Type 미디어 타입 지원 여부 확인 -> 조건 만족 시, read() 호출 후, 객체 생성한 다음 리턴.
+  
+  - HTTP 응답 데이터 처리
+    - `@RequestBody`, HttpEntity 값 반환 -> 메시지를 쓰기 위해 canWrite() 호출 -> 대상 클래스 지원 여부 확인 -> Content-Type 미디어 타입 지원 여부 확인 -> 조건 만족 시, write() 호출 후, HTTP 응답 메시지 바디에 데이터 생성.
+
+  - HTTP 요청시, Content-Type이 application/json이 아니라면, JSON을 처리할 수 있는
+  JsonConverter가 실행되지 않는다.
+
+  - 메시지 컨버터 실행 순서
+    - 0번째 = ByteArrayHttpMessageConverter = byte[] 데이터 처리
+    - 1번째 = StringHttpMessageConverter = String 문자열 처리
+    - 2번째 = MappingJackson2HttpMessageConverter = 객체 또는 HashMap 처리
+    - 기타 등등 존재
+    
+    - 우선, 0번째부터 조회하고, 클래스 타입과 미디터 타입이 일치해야
+    적용된다. 따라서, 하나의 타입이라도 다르다면, 다음으로 넘어가고
+    만일, 전부 일치하는 타입이 존재하지 않는다면, 오류가 발생한다.
+
+  - ArgumentResolver = HandlerMethodArgumentResolver
+    - 동작 방식
+      - `supportsParameter()` 을 호출해서 해당 파라미터를 지원하는지 체크한다.
+        지원한다면, `resolveArgument()` 을 호출해서 객체를 생성하고, 컨트롤러 호출할 때
+        넘긴다.
+  
+  - ReturnValueHandler = HandlerMethodReturnValueHandler
+    - 동작 방식은 ArgumentResolve와 유사하다.
+  
+  - HTTP 메시지 컨버터는 ArgumentResolver와 ReturnValueHandler가 사용한다.
+  - `@RequestBody`, `@ResponseBody`는 RequestResponseBodyMethodProcessor가 처리한다.
+  - `HttpEntity`는 HttpEntityMethodProcessor가 처리한다.
+
+  - HTTP 메시지 컨버터 처리 순서
+    - RequestMapping -> ArgumentResolver -> HTTP Message Converter 안에서 처리 -> ArgumentResolver -> RequestMapping -> Controller
+    - `@RequestBody`, `HttpEntity`만 ArgumentResolver에서 처리하지 않고,
+      Http Message Converter에 위임한다.
