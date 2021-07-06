@@ -7157,3 +7157,55 @@
     - RequestMapping -> ArgumentResolver -> HTTP Message Converter 안에서 처리 -> ArgumentResolver -> RequestMapping -> Controller
     - `@RequestBody`, `HttpEntity`만 ArgumentResolver에서 처리하지 않고,
       Http Message Converter에 위임한다.
+
+  - `@ModelAttribute`의 장점
+  ```
+  적용 전
+  @PostMapping("/add")
+  public String add(@RequestParam String name, @RequestParam String email, @RequestParam String tel, Model model) {
+    Person person = new Person();
+    person.setName(name);
+    person.setEmail(email);
+    person.setTel(tel);
+    
+    data.save(person);
+    model.addAttribute("person", person);
+    
+    return "/person/info";
+  }
+
+  요청 파라미터값을 하나씩 받아서 Person 객체를 생성한 다음, 값을 삽입하고 등록한다.
+  등록 후에는 생성한 Person 정보를 출력해야 하므로, Model을 사용한다.
+
+
+  적용 후
+  @PostMapping("/add")
+  public void add(@ModelAttribute("item") Item item) {
+    
+    data.save(item);
+
+    return "/person/info";
+  }
+  적용 전 코드에 비해, 훨씬 간결해졌다.
+  객체를 생성하고, 요청 파라미터값들이 객체 프로퍼티에 setter로 접근하기 때문에 
+  바로 생성이 가능해진다.
+  그리고 Model의 addAttribute 역할도 같이 하기 때문에 바로 값을 넘겨서 사용할 수 있다.
+
+
+  추가로, 괄호안의 item 문자열을 선언하지 않아도, 
+  HTML에 있는 객체명과 동일하기 때문에 정상 작동된다.
+  그래서 아래와 같이 실행된다.
+  
+  Item -> item
+  즉, 객체명의 첫 문자만 소문자로 바꿔준다.
+
+
+  마지막으로, @ModelAttribute 를 생략해도 작동된다.
+  ```
+  
+
+
+  
+
+
+
