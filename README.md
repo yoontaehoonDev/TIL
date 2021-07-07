@@ -7192,20 +7192,70 @@
   그리고 Model의 addAttribute 역할도 같이 하기 때문에 바로 값을 넘겨서 사용할 수 있다.
 
 
-  추가로, 괄호안의 item 문자열을 선언하지 않아도, 
+  추가로, 괄호안의 item 문자열을 선언하지 않아도,
   HTML에 있는 객체명과 동일하기 때문에 정상 작동된다.
   그래서 아래와 같이 실행된다.
   
   Item -> item
-  즉, 객체명의 첫 문자만 소문자로 바꿔준다.
+  즉, 클래스명의 첫 문자만 소문자로 바꿔준다.
 
 
   마지막으로, @ModelAttribute 를 생략해도 작동된다.
   ```
-  
 
 
-  
+# 2021-07-07
+  - Thymeleaf 문법
+    - 사용 선언
+      - `<html xmlns:th="http://www.thymeleaf.org">`
+    
+    - 텍스트 처리
+      - text와 utext로 나뉜다.
+      - HTML 콘텐츠에 데이터를 출력할 때
+        - `th:text="${변수명}"`
+      
+      - HTML 콘텐츠 영역에서 데이터를 출력할 때
+        - `[[${변수명}]]`
+      
+      - HTML Entity
+        - 웹 브라우저는 기본적으로 `<` `>`를  HTML 태그의 시작으로 인식한다.
+          따라서, 태그가 아닌 문자 그대로 인식하게 하려면, 특수 문자를 HTML Entity
+          로 변경해야 하는데 이 변경하는 것을 escape 라고 한다.
+          그리고 기본적으로 제공하는 `th:text`와 `[[${}]]`는 escape가 적용되어 있다.
 
+        - escape를 사용하지 않으려면, `th:utext`나 `[(${})]`를 사용하면 된다.          
+
+      - SpringEL 표현식
+        - Object
+          - `th:text="${member.name}"` = Member 객체의 name 프로퍼티를 출력한다.
+          - `th:text="${member['name']}"` = 괄호 안의 이름이 프로퍼티다.
+          - `th:text="${member.getName()}"` = getter로 name을 출력한다.
+
+        - List
+          - `th:text="${members[3].name}"` = members 리스트의 2번째 객체에서 
+            name 출력한다.
+          - `th:text="${members[0]['name']}"` = 0번째 객체에서 name 출력한다.
+          - `th:text="${members[1].getName()}"` = 1번째 객체에서 getter로 name을 출력한다.
+
+        - Map
+          ```
+          Member member1 = new Member("김연화", 20, "yeonhwa@gmail.com");
+          Member member2 = new Member("최하늘", 22, "sky@gmail.com");
+          Map<String, Member> map = new HashMap<>();
+          map.put("firstMember", member1);
+          map.put("secondMember", member2);
+          model.addAttribute("memberMap", map);
+          ```
+          - `th:text="${memberMap['member1'].name}"` = 괄호 안에는 key값을 넣는다.
+            그리고 뒤에 프로퍼티명을 명시하면, `member1.getName()`이 되는 셈이다.
+          - `th:text="${memberMap['member1']['email']}"` = member1.getEmail()을 출력한다.
+          - `th:text="${memberMap['member2'].getAge()}"` = member2.getAge()를 출력한다.
+
+        - 지역 변수 선언
+          - `th:text="var=${member[0]}"` = 컨트롤러에서 받은 리스트의 0번째 객체를
+            var 변수에 치환환다.
+          - `th:text="${var.name}"` = 객체의 프로퍼티 name을 출력한다.
+          - 여기서 스코프를 주의해야 한다. 만일, div태그 안에 선언했다면, 태그 끝 전까지만
+            사용이 가능하다.
 
 
