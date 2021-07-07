@@ -7257,5 +7257,58 @@
           - `th:text="${var.name}"` = 객체의 프로퍼티 name을 출력한다.
           - 여기서 스코프를 주의해야 한다. 만일, div태그 안에 선언했다면, 태그 끝 전까지만
             사용이 가능하다.
+    
+    - URL 링크
+      - 기본 URL = `@{/경로명}`
+        - `@{/member/info}`
+      
+      - 쿼리 파라미터 = `@{/경로명(파라미터명=${파라미터값}, 파라미터명=${파라미터값})}`
+        - `@{/test(name=${param1}, age=${param2})}`
+        - ()안에 있는 부분이 쿼리 파라미터로 처리된다.
+      
+      - 경로변수
+        - `@{/경로명/{파라미터명1}/{파라미터명2}(파라미터명1=${파라미터값}, 파라미터명2=${파라미터값})}`
+        - `@{/test/{name}/{info}(name=${param1}, info=${param2})}`
 
+    - 속성
+      - input태그 name 속성 설정
+        - `<input type="text" name="test" th:name="temp">`
+        - input태그의 name 속성값이 test가 아닌, temp로 표시된다.
+      
+      - 속성 추가
+        - `<input type="text" class="text th:attrappend="class='large'">`
+          - attr = 속성, append = 추가
+          - 속성을 추가해서 class 값 뒤에 붙인다. 따라서, class값은 `textlarge`가 된다.
+        - `<input type="text" class="text" th:attrprepend="class='large'">`
+          - prepend = 앞에 추가
+          - class값이 largetext가 된다. 추가로, class='large '로 명시하면,
+            class값은 larget text가 된다.
+        - `<input type="text" class="text" th:classappend="large">`
+          - 뒤에 추가하며, 자동으로 띄어쓰기를 적용한다.
+          - class값이 text large가 된다.
+        
+        - checked 처리
+          - `th:checked="true"` = 체크박스에 체크 상태로 출력한다.
+          - `th:checked="false"` = 체크박스에 미체크 상태로 출력한다.
+    
+    - 반복
+      - `th:each="member : ${members}"`
+        - members는 리스트 혹은 맵의 파라미터값이고, member는 사용할 변수명이다.
+      - `th:text="${member.name}"` = 사용
+    
+    - 조건
+      ```
+      th:text="'짝수'" th:if="${member.age % 2 == 0}"
+      멤버의 나이가 2로 나누어 떨어지면, 짝수 를 출력한다.
 
+      th:switch="${member.number}"
+        th:case="1" th:text="'첫번째'"
+        th:case="2" th:text="'두번째'"
+        th:case="*" th:text="'그외'"
+      스위치문과 동일하며,
+      멤버의 번호가 1이면, 첫번째 를 출력하고
+      1 또는 2가 아니라면, 그외 를 출력한다.
+      그래서 default는 *을 명시하면 된다.
+      ```
+      
+      
