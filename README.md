@@ -7310,5 +7310,63 @@
       1 또는 2가 아니라면, 그외 를 출력한다.
       그래서 default는 *을 명시하면 된다.
       ```
+    
+
+# 2021-07-08
+  - 자바스크립트 인라인
+      ```
+      name = "연화", age = 20
+      <script th:inline="javascript">
+        var name = [[${member.name}]];
+        var age = [[${member.age}]];
+        var member = [[${member}]];
+      </script>
+        name에는 memeber 객체의 name 프로퍼티 값이 들어간다. name = "연화"
+        age는 위와 동일 age = 20
+        member는 객체가 들어가므로, {"name":"연화","age":20} 이 된다.
       
+      
+      each
+      <script th:inline="javascript">
+        [# th:each="member, stat : ${members}"]
+        var member[[${stat.count}]] = [[${member}]];
+        [/]
+      </script>
+      유지 기능을 사용하기 위해, 2번째 파라미터 stat도 선언한다.
+      ```
+    
+    - 템플릿 조각
+      - 공통 영역을 사용하는 역할을 한다.
+        예를 들면, 헤더나 푸터의 경우에는 따로 파일을 생성하고,
+        다른 파일에서는 불러오는 식으로 사용한다.
+        그래서 JSP의 include와 같은 역할이라고 보면 된다.
+      
+      ```
+      조각
+      <footer th:fragment="clone">
+      내용
+      </footer>
+
+      적용 페이지
+      <div th:insert="~{template/test/footer :: clone}"/>
+      <div th:replace="~{template/test/footer :: clone}"/>
+      <div th:replace="template/test/footer :: clone"/>     
+      ```
+
+  - `th:field="*{파라미터}"` = id, name, value를 모두 출력해준다.
+  
+  - 체크박스 값 넘기기
+    - 체크를 한 경우에는 값이 넘어가지만, 체크를 하지 않으면 넘어가지 않는다.
+      따라서, 히든 필드를 추가해서 넘겨야 한다.
+  
+  - 메시지 적용
+  
+  - 국제화 적용
+
+  - bindingResult는 자동으로 View로 넘어간다.
+
+  - BindingResult는 첫 번째 파라미터 다음에 와야 한다.
+
+  
+
       
