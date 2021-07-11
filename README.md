@@ -7367,6 +7367,53 @@
 
   - BindingResult는 첫 번째 파라미터 다음에 와야 한다.
 
-  
+
+# 2021-07-10
+  - FieldError 생성자 파라미터 목록
+    - objectName = 오류가 발생한 객체 이름
+    - field = 오류 필드
+    - rejectedValue = 유저가 입력한 값
+    - bindingFailure = 바인딩 실패 or 검증 실패 구분 값
+    - codes = 메시지 코드
+    - arguments = 메시지가 사용하는 인자값
+    - defaultMessage = 기본 오류 메시지
+
+  - 스프링 부트 메시지 설정 추가하기
+    - application.properties
+    ```
+    spring.messages.basename=messages,errors
+    ```
+
+    - errors.properties
+    ```
+    required.user.name=이름은 필수 항목입니다.
+    range.user.age=나이는 {0} ~ {1} 까지 입력 가능합니다.
+    range.user.tel=번호는 {0}자리 입력해야 합니다.
+
+    괄호 안에 들어가는 값이 FieldError의 arguments값이고,
+    코드는 codes의 값이다.
+    ```
+
+    - Controller
+    ```
+    new FieldError("user", "age", user.getAge(), false, new String[]{"range.user.age"}, new Object[]{15, 90});
+
+    Object배열의 파라미터값들이 errors.properties의 arguments값과 일치한다.
+    따라서, 나이는 {15} ~ {90} 까지 입력 가능합니다. 가 되는 셈이다.
+    
+    field값과 errorCode값이 codes값과 중복된다.
+    그래서 단순화 시킬 필요가 있다.
+    ```
+
+    - 단순화
+      - rejectValue
+      ```
+      bindingResult.rejectValue("age", "range", new Object[]{15, 90}, null);
+      age = field값
+      range = errorCode값
+      new Object... = arguments값
+      null = defaultMessage값 <- 이미 error.properties에 값이 있으므로, null로 해도 상관없다.
+      ```
+    
 
       
