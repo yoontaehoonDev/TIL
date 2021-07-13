@@ -7414,6 +7414,26 @@
       new Object... = arguments값
       null = defaultMessage값 <- 이미 error.properties에 값이 있으므로, null로 해도 상관없다.
       ```
+
+
+# 2021-07-13
+  - Bean Validation
+    - 오류 코드와 메시지 처리를 보다 더 쉽게 다룰 수 있다.
+    ```
+    기존
+    bindingResult.rejectValue("age", "range", new Object[]{15,90}, null);
+    
+    변경
+    @NotNull
+    @Range(min = 15, max = 90)
+    private int age;
+
+    errors.properties
+    range.member.age=나이는 {0} ~ {1} 까지 허용합니다.
+    ```
+    - 애노테이션을 추가해서 더 간편화시켰다.
+    
+    
     
 
       
