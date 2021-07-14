@@ -7432,7 +7432,26 @@
     range.member.age=나이는 {0} ~ {1} 까지 허용합니다.
     ```
     - 애노테이션을 추가해서 더 간편화시켰다.
+
+
+# 2021-07-14
+  - 필터와 인터셉터
+    - 필터는 Spring Context 외부에 존재한다.
+      그래서 DispatcherServlet 전에 호출된다.
+      
+      - 실행 메소드
+        - `init()` = 필터 인스턴스 초기화
+        - `doFilter()` = 전/후 처리
+        - `destroy()` = 필터 인스턴스 종료
     
+    - 인터셉터는 필터와 다르게 Spring Context 내부에 존재하며,
+      스프링의 모든 빈 객체에 접근이 가능하다.
+      그리고 DispatcherServlet이 Controller를 호출하기 전/후에 사용된다.
+      
+      - 실행 메소드
+        - `preHandler()` = Controller 메소드 실행 전
+        - `postHandler()` = Controller 메소드 실행 직후, View에 렌더링 되기 전
+        - `afterCompletion()` = View 렌더링 후
     
     
 
