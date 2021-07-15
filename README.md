@@ -7453,6 +7453,40 @@
         - `postHandler()` = Controller 메소드 실행 직후, View에 렌더링 되기 전
         - `afterCompletion()` = View 렌더링 후
     
+
+# 2021-07-15
+  - 트랜잭션 사용 예   
+    - 인터페이스가 있는 경우만, Spring AOP가 적용되기 때문에
+      Service단에서 처리한다.
+      Controller는 인터페이스를 구현하는 클래스가 아니기 때문에
+      `@Transactional`을 붙여도 동작하지 않는다.
+  
+  - 인터셉터
+    - `HandlerMethod` = 핸들러 매핑을 사용하면, 핸들러 정보로 HandlerMethod가 넘어온다.
+    - `ResourceHttpRequestHandler` = 정적 리소스가 호출되는 경우, 핸들러 정보로 넘어온다.
+    - `postHandler`은 예외가 발생한 경우 호출되지 않지만,
+      `afterCompletion`은 예외가 발생해도 호출되는 메소드다.
+  
+    - WebConfig 인터셉터 등록
+    ```
+    @Configuration
+    public class WebConfig implements WebMvcConfigurer {
+
+      WebMvcConfigurer의 메소드를 오버라이딩한다.
+      @Override
+      public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new TestInterceptor())
+                .order(1)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/specific/**", "/else/**");
+      }
+    }
+    
+    order는 인터셉터의 호출 순서를 의미하며,
+    addPathPatterns는 인터셉터를 적용할 URL을 지정한다.
+    excludePathPatterns는 모든 URL을 인터셉터 적용을 하더라도,
+    특정 URI만 제외시킬 수 있는 역할을 한다.
+    ```
     
 
       
