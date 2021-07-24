@@ -7560,3 +7560,22 @@
         그래서 복잡하다는 단점이 있지만, 보안, 트랙잭션 등 신뢰성을 제공한다.
         REST는 장애 발생 시, 재시도를 하지만, SOAP는 실행 로직이 규정되어 있다.
         민감한 데이터를 다룰 때는 SOAP 방식을 따르는 게 ACID 측면에서 더 낫다.
+
+      
+# 2021-07-24
+  - 스프링 시큐리티
+    - 인증
+      - 자신을 증명하는 것 (자의)
+    
+    - 인가
+      - 자격이 부여되는 것 (타의)
+    
+    - 사내 출입문 통과 = 인증 필요
+    - 사내 서버실 출입 = 인가 필요
+
+    - AuthenticationManager
+      - ProviderManager
+        - DaoAuthenticationProvider
+        - CasAuthenticationProvider
+        - RemoteAuthenticationProvider
+        - LdapAuthenticationProvider
