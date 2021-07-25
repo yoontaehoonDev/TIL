@@ -7579,3 +7579,26 @@
         - CasAuthenticationProvider
         - RemoteAuthenticationProvider
         - LdapAuthenticationProvider
+
+
+# 2021-07-25
+  - Spring Data JPA
+    - `@OneToOne` = 일대일 관계
+    - `@OneToMany` = 일대다 관계
+    - `@ManyToOne` = 다대일 관계
+    - `@ManyToMany` = 다대다 관계
+
+    - 일대다 Ex) 회원이 게시글을 여러 개 가질 수 있다.
+      ```
+      @OneToMany(mappedBy = "member")
+      private List<Board> boards = new ArrayList<>();
+      ```
+    
+    - 다대일 Ex) 게시글은 한 명의 회원만 가질 수 있다.
+      ```
+      @ManyToOne(fetch = LAZY)
+      @JoinColumn(name = "member_id")
+      private Member member;
+      ```
+    
+    -
