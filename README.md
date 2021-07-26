@@ -7601,4 +7601,42 @@
       private Member member;
       ```
     
-    -
+
+# 2021-07-26
+  - JPA를 사용할 때 DAO 작성법
+  ```
+  @Repository // Spring Bean에 등록하기 위해 선언한다.
+  @RequiredArgsConstructor // 필드로 선언한 객체를 생성자에 주입한다.
+  public class TestRepository {
+
+    private final EntityManager em; // JPA를 사용하기 위해 호출한다.
+
+    public void add(Test test) {
+      em.persist(test);
+      추가할 테스트 객체를 엔티티 매니저의 persist() 메소드로 추가한다.
+    }
+
+    public Test findOne(Long id) {
+      return em.find(Test.class, id);
+      파라미터의 id값으로 Test 클래스에 있는 id를 찾아서 리턴한다.
+    }
+
+    public List<Test> findAll() {
+      return em.createQuery("select t from Test t", Test.class).getResultList();
+      다중 데이터를 불러오기 위해서는 객체지향 쿼리인 JPQL을 사용해야 한다.
+      SQL문과 유사하다. 1번째 파라미터에는 쿼리문을 작성하고, 2번째 파라미터는
+      쿼리에 담을 객체 클래스를 선언한다.
+      마지막으로, getResultList로 다중 데이터를 결과값으로 받는다.
+    }
+
+    public List<Test> findByName(String name) {
+      return em.createQuery("select t from Test t where t.name = :name", Test.class)
+              .setParameter("name", name)
+              .getResultList();
+      where절을 추가할 때는 = 뒤에 :을 추가하고 바로 컬럼명을 명시하면 된다.
+      그리고 setParameter를 통해, 1번째 파라미터에는 컬럼명을 추가하고,
+      2번째 파라미터는 객체의 필드명을 추가한다.
+      그러면, :name 에 Test.class의 name값이 치환된다.
+    }
+  }
+  ```
