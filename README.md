@@ -7641,15 +7641,70 @@
   }
   ```
 
-# 2021-07-27
-  - 즉시 로딩과 지연 로딩
-    - 즉시 로딩은 하나의 객체의 포함 관계에 있는 타 객체
-      즉, 둘 다 조회할 때 사용한다.
-      여기서 지연 로딩을 사용하면, 쿼리가 따로 2번 생성되기 때문에
-      상황에 맞게 설정해서 사용해야 한다.
-      지연 로딩은 하나의 객체만 조회할 때 사용한다.
-      
-      ```
-      (fetch = FetchType.EAGER) = 즉시 로딩
-      (fetch = FetchType.LAZY) = 지연 로딩
-      ```
+
+# 2021-07-28
+  - JPA 동작 원리
+    - Java Application 내부에서 작동하며,
+      JDBC API를 연결해서 사용한다.
+      JDBC API는 외부 DB에 SQL으로 통신을 한다.
+    
+    - 저장
+      - DAO에서 JPA에 EntityObject(객체)를 persist한다.
+        JPA는 객체로 SQL문을 작성하고 JDBC API를 사용해서 DB에 연결한다.
+        ```
+        DAO -> EntityObject -> JPA -> Create SQL -> Connect JDBC API -> Cast SQL to DB
+        ```
+
+    - 조회
+      - 위와 거의 동일하며, 반환되는 값이 있으므로, EntityObject를 리턴한다.
+        ```
+        DAO -> JPA -> Create SQL -> Connect JDBC API -> Execute ResultSet -> Cast SQL to DB -> Return Result to JPA via JDBC API -> Return Result to DAO 
+        ```
+  
+  - JPA 명세
+    - JPA는 인터페이스이며, Hibernate, EclipseLink, DataNucleus가 구현한다.
+  
+  - 캐시 사용
+    - 같은 객체를 2번 이상 조회할 때, 캐시를 사용하여 결과적으로 SQL문 한 번만 실행시킨다.
+  
+  - 지연 로딩과 즉시 로딩
+    - 지연 로딩 = 객체가 사용될 때 로딩
+    - 즉시 로딩 = Join을 하여 연관된 객체를 한 번에 로딩
+
+    - 지연 로딩 예시
+    ```
+    Class B {
+      private int id;
+      private String name;
+    }
+
+    class A {
+      private int id;
+      private String name;
+      private B b;
+    }
+
+    --------------------
+    A a = aDao.find(aId);
+    B b = a.getB();
+    여기까지는 순수 A의 객체 데이터만 로딩한다.
+
+    int bId = b.getId();
+    A의 연관 객체인 B의 데이터를 사용할 때 B의 객체 데이터를 로딩한다.
+
+    따라서, 실행되는 SQL문은 아래와 같다.
+
+    select * from A;
+    select * from B;
+    Join을 사용하지 않는다.
+    ```
+
+    - 즉시 로딩 예시
+    ```
+    A a = aDao.find(aId);
+    여기서 A의 객체 데이터 뿐만 아니라, B의 객체까지 로딩한다.
+    따라서, B의 객체 데이터 사용유무와 관계없이 join을 사용하여 SQL문을 실행시킨다.
+
+    select a.id, a.name, b.id, b.name from A a join B b on a.id = b.id
+    ```
+    
