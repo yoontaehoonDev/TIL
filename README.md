@@ -7707,4 +7707,37 @@
 
     select a.id, a.name, b.id, b.name from A a join B b on a.id = b.id
     ```
+
+
+# 2021-07-29
+  - 영속성 컨텍스트
+    - Entity를 영구 저장하는 보관소이다.
+      따라서, persist() 메소드를 사용하면 바로 DB에 저장되는 것이 아니라,
+      컨텍스트에 영구 저장되고, commit()을 통해서 DB에 저장하게 된다.
+  
+  - Entity Life Cycle
+    - 비영속 = 영속성 컨텍스트와 관계가 없는 상태
+    - 영속 = 영속성 컨텍스트에 보관된 상태
+    - 준영속 = 영속성 컨텍스트에 저장되었다가 분리된 상태
+    - 삭제 = 영속성 컨텍스트에서 삭제된 상태
+
+    ```
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("test");
+    EntityManager em = emf.createEntityManager();
+
+    Test t = new Test();
+    t.setId(id);
+    t.setName(name);
+    - 비영속 상태
     
+    em.persist(t)
+    - 영속 상태
+
+    em.detach(t)
+    - 준영속 상태
+
+    em.remove(t)
+    - 삭제 상태
+    
+
+
