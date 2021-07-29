@@ -7738,6 +7738,15 @@
 
     em.remove(t)
     - 삭제 상태
-    
+    ```
+  
+  - EnumType
+    - EnumType.ORDINAL을 사용하면, ENUM의 순서를 DB에 저장한다.
+    - EnumType.STRING을 사용하면, ENUM의 이름을 DB에 저장한다.
+
+    - ORDINAL을 사용하면, 후에 업데이트를 할 때 문제가 발생한다.
+      예를 들면, 2개의 ENUM타입이 있는데 1개의 ENUM타입을 추가하면,
+      순서까지 변경해주지 않는다.
+      따라서, STRING을 사용하는 것이 좋다.
 
 
