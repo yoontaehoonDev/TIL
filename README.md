@@ -7652,13 +7652,13 @@
       - DAO에서 JPA에 EntityObject(객체)를 persist한다.
         JPA는 객체로 SQL문을 작성하고 JDBC API를 사용해서 DB에 연결한다.
         ```
-        DAO -> EntityObject -> JPA -> Create SQL -> Connect JDBC API -> Cast SQL to DB
+        DAO -> EntityObject -> JPA -> Analysis -> Create SQL -> Connect JDBC API -> Cast SQL to DB
         ```
 
     - 조회
       - 위와 거의 동일하며, 반환되는 값이 있으므로, EntityObject를 리턴한다.
         ```
-        DAO -> JPA -> Create SQL -> Connect JDBC API -> Execute ResultSet -> Cast SQL to DB -> Return Result to JPA via JDBC API -> Return Result to DAO 
+        DAO -> JPA -> Analysis -> Create SQL -> Connect JDBC API -> Execute ResultSet -> Cast SQL to DB -> Return Result to JPA via JDBC API -> Return Result to DAO 
         ```
   
   - JPA 명세
@@ -7750,3 +7750,49 @@
       따라서, STRING을 사용하는 것이 좋다.
 
 
+# 2021-07-30
+  - 연관관계의 주인
+    - 양방향 연관관계에서 주인을 정하는 기준은
+      외래키가 있는 곳이다.
+      그래서 외래키가 있는 객체는 연관관계에서 주인이 되며,
+      관리(등록 및 수정)을 할 수 있다.
+      반면에, 주인이 아닌 쪽은 조회만 가능하다.
+
+      그리고 mappedBy는 주인 쪽이 아닌 반대쪽에서 사용한다.
+      ```
+      다대일 관계
+
+      주인 객체
+      @Entity
+      class A {
+        @Id
+        @Column(name = "A_ID")
+        private Long id;
+
+        @ManytoOne // 앞(Many)은 상대 객체, 뒤(One)는 현재 객체
+        @JoinColumn(name = "B_ID")
+        private B b;
+      }
+
+      참조 객체
+      @Entity
+      class B {
+        @Id
+        @Column(name = "B_ID")
+        private Long id;
+
+        @OneToMany(mappedBy = "b")
+        private List<A> a = new ArrayList<>();
+      }
+
+      B는 A를 여러 개 가질 수 있지만,
+      A는 B를 하나만 가질 수 있다.
+      그래서 비유하자면, B가 노트북이라면, 
+      A는 노트북 내부의 하드웨어 장치들이다.
+
+      ```
+    - 참고로, 객체에서 양방향 관계는 단방향으로 2개를 만들어야 한다.
+      A 클래스가 B 클래스를 참조하고,
+      B 클래스가 A 클래스를 참조한다.
+      
+      
