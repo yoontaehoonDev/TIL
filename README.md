@@ -7794,5 +7794,99 @@
     - 참고로, 객체에서 양방향 관계는 단방향으로 2개를 만들어야 한다.
       A 클래스가 B 클래스를 참조하고,
       B 클래스가 A 클래스를 참조한다.
+
+
+# 2021-07-31
+  - 상속관계 매핑
+    - 조인 전략 / 단일테이블 전략 / 각 테이블 전략
+
+    - 조인 전략은 정석으로 쓰이며, 추상 클래스를 사용하여,
+      콘크리트 클래스가 상속을 받는다. 그리고 추상 클래스의
+      필드들을 사용하는 방향으로 흐른다.
+
+      장점은 테이블 정규화가 가능하며, 저장공간 효율성이 좋다.
+      단점은 조회시, 조인을 사용하기 때문에 성능 부분에서 크게 좋진 않다.
+
+      ```
+      추상 클래스
+      @Entity
+      @Inheritance(strategy = InheritanceType.JOINED)
+      @DiscriminatorColumn <- DType 사용시 선언, 상속 받는 클래스명을 사용한다.
+      public abstract class Clothes {
+
+        @Id
+        @GeneratedValue
+        private Long id;
+        private String name;
+        private String brandName;
+        private String color;
+        private int price;
+      }
+
+      콘크리트 클래스
+      @Entity
+      public class Shirt extends Clothes {
+
+        private int upperSize;
+
+      }
+
+      @Entity
+      public class Pants extends Clothes {
+        
+        private int lowerSize;
+      }
+
+      public class Main {
+        
+        public static void main(String[] args) {
+          EntityManagerFactory emf = Persistance.CreateEntityManagerFactory("test");
+          EntityManager em = emf.CreateEntityManager();
+          EntityTransaction tx = em.getTransaction();
+
+          tx.begin();
+
+          try {
+
+            셔츠를 하나 등록할 경우
+            Shirt shirt = new Shirt();
+            shirt.setName("T-Shirt");
+            shirt.setBrandName("Kakao");
+            shirt.setPrice(15000);
+            shirt.setColor("red");
+            shirt.setUpperSize(95);
+            em.persist(shirt);
+
+            하위 클래스가 상위 클래스 필드까지 사용 가능하기 때문에
+            각각 새로 선언할 필요가 없다.
+
+            tx.commit();
+          }
+          catch (Exception e) {
+            tx.rollback();
+          }
+          finally {
+            em.close();
+          }
+
+          emf.close();
+        }
+      }
+      ```
+      
+    - 단일테이블 전략은 구현하기에 간단할 경우, 사용한다.
+      예를 들면, 조인 전략처럼 분류를 많이 할 필요도 없고,
+      컬럼도 몇 개 없다면 단일테이블 전략을 사용하는 게 효율적이다.
+
+      장점은 조인을 할 필요가 없기 때문에 조회 성능이 빠르다.
+      단점은 자식 Entity가 매핑한 컬럼은 모두 null을 허용한다.
+
+      위 코드와 큰 차이는 없으며,
+      `@Inheritance(strategy = InheritanceType.SINGLE_TABLE)`가 달라진다.
+      타입이 `JOINED`가 아닌, `SINGLE_TABLE`을 사용해야 하며,
+      Default로 `@DiscriminatorColumn`가 적용된다.
+      왜냐하면, 모든 컬럼들이 한 테이블 안에 있기 때문에
+      구분하기 어렵기 때문이다.
+
       
       
