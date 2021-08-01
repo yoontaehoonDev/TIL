@@ -7888,5 +7888,45 @@
       왜냐하면, 모든 컬럼들이 한 테이블 안에 있기 때문에
       구분하기 어렵기 때문이다.
 
+
+# 2021-08-01
+  - 매핑 정보 상속
+    - 여러 테이블이 공통적으로 사용하는 컬럼은 추상 클래스를 사용하여,
+      상속해서 사용이 가능하다.
       
+      그리고 추상 클래스는 Entity가 아니며, 테이블과 매핑이 되지 않는다.
+      단순 속성만 매핑을 하려면, `@MappedSuperclass`를 사용하고,
+      테이블 자체를 매핑하려면, `@Entity`를 이용해서 상속해야 한다.
+
+      부모 클래스로 검색 및 조회가 불가능하다.
+      Ex) `em.find(BaseEntity.class, user.getId())` <- 불가능
+      직접 사용할 일이 없으므로 추상 클래스로 생성한다.
       
+      ```
+      @MappedSuperclass
+      public abstract class BaseEntity {
+        
+        private String registeredBy;
+        private LocalDateTime registeredDate;
+      }
+
+      @Entity
+      public class Board extends BaseEntity {
+            .....
+      }
+      ```
+
+  - 프록시
+    - 프록시는 일종의 가짜 객체이다.
+      그렇기 때문에 실 객체를 상속 받아서 사용된다.
+    
+    - 특징
+      - 처음 사용할 때 단 한 번만 초기화된다.
+        초기화되면서 실제 Entity에 접근이 가능해지고,
+        접근해서 데이터를 가지고 온다.
+        
+        영속성 컨텍스트에 이미 찾고자 하는 Entity가 있다면,
+        getReference()를 호출해도 실 객체를 반환한다.
+        그래서 getClass()로 클래스 정보를 조회하면, Proxy가 아닌
+        실제 클래스의 정보가 출력된다.
+
