@@ -7930,3 +7930,11 @@
         그래서 getClass()로 클래스 정보를 조회하면, Proxy가 아닌
         실제 클래스의 정보가 출력된다.
 
+
+# 2021-08-02
+  - 영속성 컨텍스트 흐름
+    - Client Request -> EntityManagerFactory Creates EntityManager ->
+    Connection Pool -> Connect DB
+  
+  - flush = 영속성 컨텍스트의 변경 내용을 DB에 반영
+    트랜잭션 commit과 JPQL 쿼리를 실행하면 자동으로 호출한다.
