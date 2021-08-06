@@ -7183,7 +7183,7 @@
   적용 후
   @PostMapping("/add")
   public void add(@ModelAttribute("item") Item item) {
-    
+
     data.save(item);
 
     return "/person/info";
@@ -7976,3 +7976,19 @@
       스마트 팩토리, 자율주행, 빅데이터 등 초대용량 데이터를 처리하기 위해서는
       일반적인 관계형 데이터베이스를 사용하기에는 성능적인 측면에서 무리가 있다.
       따라서, 이러한 단점을 극복하기 위해 나온 것이 TSDB(Time Series Database)이다.
+
+
+# 2021-08-06
+  - `@PathVariable` 사용시, 경로 설정을 잘 확인해야 한다.
+    ```
+    @GetMapping("detail/{id}")
+    public String detail(@PathVariable int id, Model model) throws Exception {
+      
+      User user = userService.detail(id);
+
+      model.addAttribute("user", user);
+
+      return "/board/detail";
+    }
+    ```
+
