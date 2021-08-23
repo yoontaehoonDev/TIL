@@ -7992,3 +7992,20 @@
     }
     ```
 
+# 2021-08-23
+  - Log 활용
+  ```
+  Log.debug(문자열);
+  
+  정수타입을 넣으면, 타입캐스팅이 필요하다.
+  Log.debug(String.valueOf(number));
+  -> number가 로그에 기록된다.
+
+  printf처럼 활용하려면 %s가 아닌, +를 사용해야 한다.
+  
+  Log.debug("Answer = %s", answer);
+  로그에 기록이 되지 않는다.
+
+  Log.debug("Answer = " + answer);
+  정상적으로 로그에 기록된다.
+  ```
